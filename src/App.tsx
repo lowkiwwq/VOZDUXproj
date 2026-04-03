@@ -26,7 +26,7 @@ const ToastManager = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
             className={cn(
-               "p-4 rounded-xl shadow-lg border flex items-start gap-3",
+               "p-4 rounded-md border flex items-start gap-3",
                toast.type === 'error' ? 'bg-destructive/10 border-destructive text-destructive' :
                toast.type === 'warning' ? 'bg-alert/10 border-alert text-alert' :
                'bg-card border-border text-foreground'
@@ -55,7 +55,7 @@ const LoadingLayout = () => {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Top Banner */}
-      <div className="bg-accent text-white px-4 py-3 rounded-xl flex justify-center items-center gap-3 animate-pulse shadow-md">
+      <div className="bg-accent text-white px-4 py-3 rounded-md flex justify-center items-center gap-3 animate-pulse">
          <Loader2 className="animate-spin" size={20} />
          <span className="font-medium text-sm">{isEn ? 'Loading Smart City Data...' : 'Загрузка данных города Алматы...'}</span>
       </div>
@@ -63,7 +63,7 @@ const LoadingLayout = () => {
       {/* KPI Cards Skeletons */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[1, 2, 3, 4].map(i => (
-          <div key={i} className="h-36 rounded-xl bg-card border border-border p-5 flex flex-col justify-between">
+          <div key={i} className="h-36 rounded-md bg-card border border-border p-5 flex flex-col justify-between">
             <div className="flex justify-between items-center">
               <div className="h-4 w-24 bg-muted rounded-md animate-pulse"></div>
               <div className="h-5 w-16 bg-muted rounded-full animate-pulse"></div>
@@ -78,12 +78,12 @@ const LoadingLayout = () => {
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
         <div className="xl:col-span-3 space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-             <div className="h-80 bg-card border border-border rounded-xl animate-pulse"></div>
-             <div className="h-80 bg-card border border-border rounded-xl animate-pulse"></div>
+             <div className="h-80 bg-card border border-border rounded-md animate-pulse"></div>
+             <div className="h-80 bg-card border border-border rounded-md animate-pulse"></div>
           </div>
-          <div className="h-64 bg-card border border-border rounded-xl animate-pulse"></div>
+          <div className="h-64 bg-card border border-border rounded-md animate-pulse"></div>
         </div>
-        <div className="xl:col-span-1 h-[600px] xl:h-auto bg-card border border-border rounded-xl animate-pulse"></div>
+        <div className="xl:col-span-1 h-[600px] xl:h-auto bg-card border border-border rounded-md animate-pulse"></div>
       </div>
     </div>
   );

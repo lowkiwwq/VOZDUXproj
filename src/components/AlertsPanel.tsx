@@ -9,7 +9,7 @@ export const AlertsPanel: React.FC = () => {
   const isEn = language === 'en';
 
   return (
-    <div className="bg-card border border-border rounded-xl p-4 shadow-sm h-full flex flex-col">
+    <div className="bg-card border border-border rounded-md p-4 h-full flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-lg flex items-center gap-2">
           <Activity size={18} className="text-muted-foreground" />
@@ -38,7 +38,7 @@ export const AlertsPanel: React.FC = () => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20, scale: 0.9 }}
                 className={cn(
-                  "p-3 rounded-lg border text-sm flex flex-col gap-2 relative",
+                  "p-3 rounded-md border text-sm flex flex-col gap-2 relative",
                   alert.severity === 'КРИТИЧНО' ? 'bg-destructive/10 border-destructive/30' :
                   alert.severity === 'ВНИМАНИЕ' ? 'bg-alert/10 border-alert/30' :
                   'bg-norm/10 border-norm/30'

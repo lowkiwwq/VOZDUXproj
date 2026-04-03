@@ -34,9 +34,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeModule, setActiveModule 
                 key={item.id}
                 onClick={() => setActiveModule(item.id)}
                 className={cn(
-                  "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                  "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200",
                   isActive 
-                    ? "bg-accent text-white shadow-md shadow-accent/20" 
+                    ? "bg-accent text-white" 
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >

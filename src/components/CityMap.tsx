@@ -180,7 +180,7 @@ const SafetyView = ({ data }: { data: SafetyData }) => {
   const createIncidentIcon = (count: number, color: string) => {
     return L.divIcon({
       className: 'custom-incident-icon',
-      html: `<div style="background-color: ${color}; color: white; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid white; font-weight: bold; font-size: 13px; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">${count}</div>`,
+      html: `<div style="background-color: ${color}; color: white; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid white; font-weight: bold; font-size: 13px;">${count}</div>`,
       iconSize: [28, 28],
       iconAnchor: [14, 14]
     });
@@ -188,14 +188,14 @@ const SafetyView = ({ data }: { data: SafetyData }) => {
 
   const shieldIcon = L.divIcon({
     className: 'police-station-icon',
-    html: `<div style="font-size: 24px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4));">🏛️</div>`,
+    html: `<div style="font-size: 24px;">🏛️</div>`,
     iconSize: [24, 24],
     iconAnchor: [12, 12]
   });
 
   const patrolIcon = L.divIcon({
     className: 'patrol-icon',
-    html: `<div style="font-size: 20px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4));">🚔</div>`,
+    html: `<div style="font-size: 20px;">🚔</div>`,
     iconSize: [20, 20],
     iconAnchor: [10, 10]
   });
@@ -276,7 +276,7 @@ const HousingView = ({ data }: { data: HousingData }) => {
   const createSquareIcon = (color: string) => {
     return L.divIcon({
       className: 'district-status-icon',
-      html: `<div style="background-color: ${color}; width: 20px; height: 20px; border-radius: 4px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); opacity: 0.9;"></div>`,
+      html: `<div style="background-color: ${color}; width: 20px; height: 20px; border-radius: 4px; border: 2px solid white; opacity: 0.9;"></div>`,
       iconSize: [20, 20],
       iconAnchor: [10, 10]
     });
@@ -285,7 +285,7 @@ const HousingView = ({ data }: { data: HousingData }) => {
   const createEmojiIcon = (emoji: string) => {
     return L.divIcon({
       className: 'facility-icon',
-      html: `<div style="font-size: 20px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4));">${emoji}</div>`,
+      html: `<div style="font-size: 20px;">${emoji}</div>`,
       iconSize: [20, 20],
       iconAnchor: [10, 10]
     });
@@ -338,14 +338,14 @@ export const CityMap = ({ activeModule, data }: CityMapProps) => {
   const isEn = language === 'en';
 
   return (
-    <div className="mt-6 bg-card border border-border rounded-xl p-5 shadow-sm overflow-hidden flex flex-col">
+    <div className="mt-6 bg-card border border-border rounded-md p-5 overflow-hidden flex flex-col">
        <div className="flex items-center gap-2 mb-4">
          <MapIcon size={20} className="text-primary" />
          <h2 className="text-lg font-bold">{isEn ? 'City Map' : 'Карта города'}</h2>
        </div>
 
        {/* Map Container wrapper */}
-       <div className="h-[420px] w-full relative rounded-xl overflow-hidden border border-border z-0">
+       <div className="h-[420px] w-full relative rounded-md overflow-hidden border border-border z-0">
           {/* We add map theme styling using CSS classes. In standard tailwind dark mode, 
               we can use a wrapper class to apply a CSS filter to the tile layer.
               To make it work reliably we inject a local style tag or rely on global CSS. 

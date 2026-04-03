@@ -1,17 +1,11 @@
 import { useState, useMemo } from 'react';
 import { useCityData, Report } from '../hooks/useCityData';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Bot, Car, Droplets, Printer, Heart, Clock, Coins, FileCheck2, ShieldAlert, Cpu, X, TrendingUp, TrendingDown, Target, BrainCircuit, Activity } from 'lucide-react';
+import { CheckCircle2, Bot, Printer, Heart, Clock, Coins, FileCheck2, Cpu, X, TrendingUp, TrendingDown, Target, BrainCircuit, Activity } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid } from 'recharts';
 import { cn } from '../lib/utils';
 
 const formatKZT = (amount?: number) => amount ? new Intl.NumberFormat('ru-RU').format(amount) + ' ₸' : '—';
-const getIcon = (cat: string) => {
-  if (cat === 'transport') return Car;
-  if (cat === 'ecology') return Droplets;
-  if (cat === 'safety') return ShieldAlert;
-  return Bot; // housing or default
-};
 
 type Timeframe = '24h' | 'week' | 'month';
 
@@ -115,7 +109,7 @@ export const ReportsView = () => {
       
       {/* Timeframe Selector */}
       <div className="flex justify-center print:hidden mb-2">
-        <div className="bg-card border border-border rounded-full p-1 flex items-center shadow-sm">
+        <div className="bg-card border border-border rounded-full p-1 flex items-center">
           {(['24h', 'week', 'month'] as Timeframe[]).map(t => (
             <button
               key={t}
@@ -146,15 +140,15 @@ export const ReportsView = () => {
         
         {/* Executive Narrative */}
         <div className="xl:col-span-2 space-y-6">
-          <div className="bg-card border border-border rounded-2xl p-6 shadow-sm relative overflow-hidden">
+          <div className="bg-card border border-border rounded-md p-6 relative overflow-hidden">
              
              {/* "Revolutionary" Highlights */}
              <div className="flex flex-wrap gap-3 mb-6 relative z-10">
-               <div className="flex items-center gap-2 px-3 py-1.5 bg-accent/10 text-accent rounded-lg border border-accent/20 text-xs font-bold uppercase tracking-wider">
+               <div className="flex items-center gap-2 px-3 py-1.5 bg-accent/10 text-accent rounded-md border border-accent/20 text-xs font-bold uppercase tracking-wider">
                  <BrainCircuit size={14}/> 
                  {isEn ? 'AI Confidence Score' : 'Достоверность ИИ прогноза'}: {activeStrat.confidence}%
                </div>
-               <div className="flex items-center gap-2 px-3 py-1.5 bg-norm/10 text-norm rounded-lg border border-norm/20 text-xs font-bold uppercase tracking-wider">
+               <div className="flex items-center gap-2 px-3 py-1.5 bg-norm/10 text-norm rounded-md border border-norm/20 text-xs font-bold uppercase tracking-wider">
                  <Heart size={14}/> 
                  {isEn ? 'Social Sentiment' : 'Рейтинг лояльности'}: {activeStrat.sentiment}/10 ( <TrendingUp size={10} className="inline opacity-70 mb-0.5 text-norm"/> {activeStrat.sentimentDelta} )
                </div>
@@ -166,11 +160,11 @@ export const ReportsView = () => {
                    <p className="text-lg font-medium">{activeNarrative.trend}</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="bg-muted/40 p-4 rounded-xl border border-border/50">
+                  <div className="bg-muted/40 p-4 rounded-md border border-border/50">
                      <h4 className="text-xs font-bold uppercase tracking-wider text-alert mb-2 flex items-center gap-2"><Activity size={14}/> {isEn ? 'Key Anomalies' : 'Ключевые аномалии'}</h4>
                      <p className="text-sm opacity-90">{activeNarrative.anomalies}</p>
                   </div>
-                  <div className="bg-muted/40 p-4 rounded-xl border border-border/50">
+                  <div className="bg-muted/40 p-4 rounded-md border border-border/50">
                      <h4 className="text-xs font-bold uppercase tracking-wider text-accent mb-2 flex items-center gap-2"><Target size={14}/> {isEn ? 'Forecast' : 'Прогноз Рисков'}</h4>
                      <p className="text-sm opacity-90">{activeNarrative.forecast}</p>
                   </div>
@@ -184,7 +178,7 @@ export const ReportsView = () => {
           </div>
 
           {/* Area Chart Section */}
-          <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+          <div className="bg-card border border-border rounded-md p-6">
              <div className="flex items-center justify-between mb-6">
                 <h3 className="font-bold text-lg">{isEn ? 'Incident Volumetrics' : 'Динамика Инцидентов'}</h3>
                 <div className="flex items-center gap-3 text-xs font-medium text-muted-foreground">
@@ -218,7 +212,7 @@ export const ReportsView = () => {
 
         {/* Dynamic KPI Column */}
         <div className="space-y-4">
-          <div className="bg-card border border-border p-5 flex flex-col rounded-xl shadow-sm relative overflow-hidden">
+          <div className="bg-card border border-border p-5 flex flex-col rounded-md relative overflow-hidden">
              <div className="absolute top-0 right-0 p-4 opacity-5"><FileCheck2 size={64}/></div>
              <div className="flex justify-between items-start">
                <p className="text-sm font-medium text-muted-foreground">{isEn ? 'AI Solved Incidents' : 'Решено ИИ'}</p>
@@ -226,7 +220,7 @@ export const ReportsView = () => {
              </div>
              <p className="text-3xl font-bold mt-2 text-foreground">{globalImpact.solved}</p>
           </div>
-          <div className="bg-card border border-border p-5 flex flex-col rounded-xl shadow-sm relative overflow-hidden">
+          <div className="bg-card border border-border p-5 flex flex-col rounded-md relative overflow-hidden">
              <div className="absolute top-0 right-0 p-4 opacity-5"><Clock size={64}/></div>
              <div className="flex justify-between items-start">
                <p className="text-sm font-medium text-muted-foreground">{isEn ? 'Citizen Hours Saved' : 'Сэкономлено времени'}</p>
@@ -234,7 +228,7 @@ export const ReportsView = () => {
              </div>
              <p className="text-3xl font-bold mt-2 text-foreground">{Math.round(globalImpact.time / 60)} {isEn ? 'h' : 'ч'}</p>
           </div>
-          <div className="bg-card border border-border p-5 flex flex-col rounded-xl shadow-sm relative overflow-hidden">
+          <div className="bg-card border border-border p-5 flex flex-col rounded-md relative overflow-hidden">
              <div className="absolute top-0 right-0 p-4 opacity-5"><Coins size={64}/></div>
              <div className="flex justify-between items-start">
                <p className="text-sm font-medium text-muted-foreground">{isEn ? 'Economic Effect' : 'Экономический эффект'}</p>
@@ -242,7 +236,7 @@ export const ReportsView = () => {
              </div>
              <p className="text-3xl font-bold mt-2 text-foreground">{formatKZT(globalImpact.money)}</p>
           </div>
-          <div className="bg-card border border-border p-5 flex flex-col rounded-xl shadow-sm relative overflow-hidden">
+          <div className="bg-card border border-border p-5 flex flex-col rounded-md relative overflow-hidden">
              <div className="absolute top-0 right-0 p-4 opacity-5"><Heart size={64}/></div>
              <div className="flex justify-between items-start">
                <p className="text-sm font-medium text-muted-foreground">{isEn ? 'Social ROI Index' : 'Индекс счастья (ROI)'}</p>
@@ -267,7 +261,7 @@ export const ReportsView = () => {
                 key={cat} onClick={() => setSelectedCategory(cat as any)}
                 className={cn(
                   "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap capitalize transition-colors border",
-                  selectedCategory === cat ? "bg-accent text-white border-accent shadow-md shadow-accent/20" : "bg-card text-muted-foreground border-border hover:bg-muted"
+                  selectedCategory === cat ? "bg-accent text-zinc-950 border-accent" : "bg-card text-muted-foreground border-border hover:bg-muted"
                 )}
               >
                 {isEn ? cat : cat === 'all' ? 'Все' : cat === 'transport' ? 'Транспорт' : cat === 'ecology' ? 'Экология' : cat === 'housing' ? 'ЖКХ' : 'Безопасность'}
@@ -278,7 +272,6 @@ export const ReportsView = () => {
         {/* Feed List */}
         <div className="grid grid-cols-1 gap-4 pb-20 print:hidden">
           {filteredReports.map((report, i) => {
-            const Icon = getIcon(report.category);
             const reportTime = new Date(report.date).toLocaleDateString(isEn ? 'en-US' : 'ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit' });
 
             return (
@@ -286,12 +279,10 @@ export const ReportsView = () => {
                 initial={{opacity: 0, y: 10}} animate={{opacity: 1, y: 0}} transition={{delay: i * 0.05}}
                 key={report.id} 
                 onClick={() => setSelectedReport(report)}
-                className="bg-card border border-border rounded-xl p-5 shadow-sm hover:shadow-md hover:border-accent/40 cursor-pointer transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
+                className="bg-card border border-border rounded-md p-5 hover:border-accent/40 cursor-pointer transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
               >
                 <div className="flex items-start gap-4">
-                   <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent shrink-0 group-hover:bg-accent group-hover:text-white transition-colors">
-                     <Icon size={20} />
-                   </div>
+                   <div className="w-2.5 h-2.5 mt-2 rounded-full bg-accent shrink-0 group-hover:scale-125 transition-transform" />
                    <div>
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-[10px] font-mono tracking-wider text-muted-foreground uppercase opacity-70">
@@ -327,7 +318,7 @@ export const ReportsView = () => {
             />
             <motion.div 
               initial={{opacity: 0, scale: 0.95, y: 20}} animate={{opacity: 1, scale: 1, y: 0}} exit={{opacity: 0, scale: 0.95, y: 20}}
-              className="fixed left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 top-[5%] sm:top-[10%] bottom-0 sm:bottom-auto w-full sm:max-w-2xl bg-card border border-border shadow-2xl rounded-t-2xl sm:rounded-2xl z-50 flex flex-col overflow-hidden max-h-[90vh] print:static print:transform-none print:w-full print:shadow-none print:border-none print:block print:absolute print:inset-0"
+              className="fixed left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 top-[5%] sm:top-[10%] bottom-0 sm:bottom-auto w-full sm:max-w-2xl bg-card border border-border rounded-t-md sm:rounded-md z-50 flex flex-col overflow-hidden max-h-[90vh] print:static print:transform-none print:w-full print:shadow-none print:border-none print:block print:absolute print:inset-0"
             >
               <div className="p-6 border-b border-border flex justify-between items-start bg-muted/30 print:hidden">
                 <div>
@@ -368,7 +359,7 @@ export const ReportsView = () => {
                       <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-2">
                         <Bot size={14}/> {isEn ? '2. Action Taken (AI Directed)' : '2. Принятые меры'}
                       </h4>
-                      <p className="text-foreground leading-relaxed font-medium bg-accent/5 p-3 rounded-lg border border-accent/10 mt-2">{selectedReport.ai_summary.action}</p>
+                      <p className="text-foreground leading-relaxed font-medium bg-accent/5 p-3 rounded-md border border-accent/10 mt-2">{selectedReport.ai_summary.action}</p>
                    </div>
                    
                    <div className="border-l-2 border-norm pl-4">
@@ -380,7 +371,7 @@ export const ReportsView = () => {
                 </div>
 
                 {/* Metrics Grid */}
-                <div className="bg-muted/50 rounded-xl p-4 border border-border">
+                <div className="bg-muted/50 rounded-md p-4 border border-border">
                   <h4 className="text-xs font-bold uppercase text-muted-foreground mb-3 text-center tracking-widest">{isEn ? 'Impact Analytics' : 'Метрики эффективности'}</h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                      {selectedReport.impact_metrics.timeSavedMinutes && (
@@ -405,8 +396,8 @@ export const ReportsView = () => {
                 </div>
 
                 {/* Digital Signature */}
-                <div className="flex items-start gap-4 p-4 rounded-xl bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-card border border-border shadow-inner">
-                   <div className="w-12 h-12 bg-accent text-white rounded-lg flex items-center justify-center shrink-0">
+                <div className="flex items-start gap-4 p-4 rounded-md bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-card border border-border">
+                   <div className="w-12 h-12 bg-accent text-zinc-950 rounded-md flex items-center justify-center shrink-0">
                      <Cpu size={24} />
                    </div>
                    <div className="font-mono text-sm opacity-80">
@@ -427,7 +418,7 @@ export const ReportsView = () => {
                  <button onClick={() => setSelectedReport(null)} className="px-4 py-2 font-medium text-muted-foreground hover:text-foreground">
                    {isEn ? 'Close' : 'Закрыть'}
                  </button>
-                 <button onClick={triggerPDFExport} className="px-5 py-2 bg-gradient-to-r from-accent to-blue-600 hover:to-blue-500 text-white rounded-lg shadow-md font-medium flex items-center gap-2 transition-all">
+                 <button onClick={triggerPDFExport} className="px-5 py-2 bg-accent text-zinc-950 rounded-md font-medium flex items-center gap-2 transition-all">
                    <Printer size={18} /> {isEn ? 'Export to PDF' : 'Экспорт в PDF'}
                  </button>
               </div>

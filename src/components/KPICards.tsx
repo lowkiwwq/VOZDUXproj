@@ -39,13 +39,13 @@ const KPICard = ({ title, value, unit, icon, status, trend, isMock, lastUpdated 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        "relative overflow-hidden rounded-xl border border-border p-5 shadow-sm flex flex-col justify-between h-36 border-l-4",
+        "relative overflow-hidden rounded-md border border-border p-5 flex flex-col justify-between h-36 border-l-4",
         statusColors[status].split(' ')[0],
         bgPulse
       )}
     >
       {isMock && (
-        <div className="absolute top-0 right-0 bg-alert text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-sm z-10 flex gap-1 items-center">
+        <div className="absolute top-0 right-0 bg-alert text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-md z-10 flex gap-1 items-center">
           ⚠ {language === 'ru' ? 'Демо-режим' : 'Mock data'}
         </div>
       )}

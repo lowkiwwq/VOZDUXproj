@@ -16,7 +16,7 @@ export const Charts: React.FC<{ activeModule: ModuleType }> = ({ activeModule })
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-card border border-border p-5 rounded-xl shadow-sm"
+          className="bg-card border border-border p-5 rounded-md"
         >
           <h3 className="text-lg font-semibold mb-6 flex justify-between items-center">
             {language === 'ru' ? 'Загруженность районов' : 'District Load'}
@@ -46,7 +46,7 @@ export const Charts: React.FC<{ activeModule: ModuleType }> = ({ activeModule })
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-card border border-border p-5 rounded-xl shadow-sm"
+          className="bg-card border border-border p-5 rounded-md"
         >
            <h3 className="text-lg font-semibold mb-6 flex justify-between items-center">
             {language === 'ru' ? 'Средняя скорость 24ч' : 'Avg Speed 24h'}
@@ -76,28 +76,22 @@ export const Charts: React.FC<{ activeModule: ModuleType }> = ({ activeModule })
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-card border border-border p-5 rounded-xl shadow-sm"
+          className="bg-card border border-border p-5 rounded-md"
         >
           <h3 className="text-lg font-semibold mb-6">
             {language === 'ru' ? 'Динамика AQI (7 дней)' : 'AQI Trend (7 days)'}
           </h3>
           <div className="h-64">
              <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={ecology.aqiHistory} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorAqi" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
+              <LineChart data={ecology.aqiHistory} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
                 <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '6px' }}
                 />
-                <Area type="monotone" dataKey="aqi" stroke="hsl(var(--accent))" fillOpacity={1} fill="url(#colorAqi)" strokeWidth={3} />
-              </AreaChart>
+                <Line type="monotone" dataKey="aqi" stroke="hsl(var(--accent))" strokeWidth={2} dot={false} />
+              </LineChart>
             </ResponsiveContainer>
           </div>
         </motion.div>
@@ -106,7 +100,7 @@ export const Charts: React.FC<{ activeModule: ModuleType }> = ({ activeModule })
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-card border border-border p-5 rounded-xl shadow-sm flex flex-col"
+          className="bg-card border border-border p-5 rounded-md flex flex-col"
         >
           <h3 className="text-lg font-semibold mb-6">
             {language === 'ru' ? 'Концентрация поллютантов' : 'Pollutant Levels'}
@@ -151,7 +145,7 @@ export const Charts: React.FC<{ activeModule: ModuleType }> = ({ activeModule })
     
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-card border border-border p-5 rounded-xl shadow-sm">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-card border border-border p-5 rounded-md">
           <h3 className="text-lg font-semibold mb-6 flex justify-between">
             {language === 'ru' ? 'Пики инцидентов (24ч)' : 'Incident Peaks (24h)'}
           </h3>
@@ -168,7 +162,7 @@ export const Charts: React.FC<{ activeModule: ModuleType }> = ({ activeModule })
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }} className="bg-card border border-border p-5 rounded-xl shadow-sm">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }} className="bg-card border border-border p-5 rounded-md">
           <h3 className="text-lg font-semibold mb-6">{language === 'ru' ? 'Типы правонарушений' : 'Incidents by Type'}</h3>
           <div className="h-64">
              <ResponsiveContainer width="100%" height="100%">
@@ -183,7 +177,7 @@ export const Charts: React.FC<{ activeModule: ModuleType }> = ({ activeModule })
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }} className="bg-card border border-border p-5 rounded-xl shadow-sm col-span-1 lg:col-span-2">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }} className="bg-card border border-border p-5 rounded-md col-span-1 lg:col-span-2">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                <div className="md:col-span-2">
                   <h3 className="text-lg font-semibold mb-6">{language === 'ru' ? 'Инциденты по районам' : 'Incidents by District'}</h3>
@@ -221,7 +215,7 @@ export const Charts: React.FC<{ activeModule: ModuleType }> = ({ activeModule })
   if (activeModule === 'housing') {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-card border border-border p-5 rounded-xl shadow-sm">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-card border border-border p-5 rounded-md">
           <h3 className="text-lg font-semibold mb-6">
             {language === 'ru' ? 'Давление и нагрузка по районам' : 'District Overloads'}
           </h3>
@@ -239,7 +233,7 @@ export const Charts: React.FC<{ activeModule: ModuleType }> = ({ activeModule })
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.05 }} className="bg-card border border-border p-5 rounded-xl shadow-sm">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.05 }} className="bg-card border border-border p-5 rounded-md">
           <h3 className="text-lg font-semibold mb-6">
             {language === 'ru' ? 'Жалобы по типам услуг' : 'Complaints by Service'}
           </h3>
@@ -260,30 +254,24 @@ export const Charts: React.FC<{ activeModule: ModuleType }> = ({ activeModule })
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }} className="bg-card border border-border p-5 rounded-xl shadow-sm">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }} className="bg-card border border-border p-5 rounded-md">
           <h3 className="text-lg font-semibold mb-6">
             {language === 'ru' ? 'Динамика жалоб ЖКХ' : 'Complaints History'}
           </h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={housing.weeklyComplaints} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorComps" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--destructive))" stopOpacity={0.4}/>
-                    <stop offset="95%" stopColor="hsl(var(--destructive))" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
+              <LineChart data={housing.weeklyComplaints} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
                 <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
-                <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }} />
-                <Area type="monotone" dataKey="complaints" stroke="hsl(var(--destructive))" fillOpacity={1} fill="url(#colorComps)" strokeWidth={3} />
-              </AreaChart>
+                <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '6px' }} />
+                <Line type="monotone" dataKey="complaints" stroke="hsl(var(--destructive))" strokeWidth={2} dot={false} />
+              </LineChart>
             </ResponsiveContainer>
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }} className="bg-card border border-border p-5 rounded-xl shadow-sm col-span-1 lg:col-span-2">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }} className="bg-card border border-border p-5 rounded-md col-span-1 lg:col-span-2">
            <h3 className="text-lg font-semibold mb-4">{language === 'ru' ? 'Статус услуг ЖКХ' : 'Housing Services Status'}</h3>
            <div className="overflow-x-auto">
              <table className="w-full text-left text-sm whitespace-nowrap">

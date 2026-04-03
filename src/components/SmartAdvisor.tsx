@@ -124,7 +124,7 @@ export const SmartAdvisor = () => {
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => setIsAdvisorOpen(false)}
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 sm:hidden"
+            className="fixed inset-0 bg-black/20 z-50 sm:hidden"
           />
 
           <motion.div
@@ -132,10 +132,10 @@ export const SmartAdvisor = () => {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 h-full w-full sm:w-[40%] bg-background/85 backdrop-blur-xl border-l border-border shadow-2xl z-50 flex flex-col"
+            className="fixed top-0 right-0 h-full w-full sm:w-[40%] bg-background border-l border-zinc-800 z-50 flex flex-col"
           >
             {/* Header */}
-            <div className="h-16 border-b border-border flex items-center justify-between px-6 shrink-0 bg-card/50">
+            <div className="h-16 border-b border-border flex items-center justify-between px-6 shrink-0 bg-card">
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <Bot size={24} className="text-accent" />
@@ -172,10 +172,10 @@ export const SmartAdvisor = () => {
                   key={msg.id} 
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div className={`max-w-[85%] rounded-2xl p-4 ${
+                  <div className={`max-w-[85%] rounded-md p-4 ${
                     msg.role === 'user' 
-                      ? 'bg-accent text-white rounded-tr-sm' 
-                      : 'bg-card border border-border shadow-sm rounded-tl-sm'
+                      ? 'bg-accent text-zinc-950 rounded-tr-sm' 
+                      : 'bg-zinc-800/50 border border-zinc-800 rounded-tl-sm'
                   }`}>
                     {msg.role === 'user' ? (
                       <p className="text-sm font-medium">{msg.content}</p>
@@ -217,18 +217,17 @@ export const SmartAdvisor = () => {
                              )}
 
                              <div className="pt-2">
-                               {appliedActions.includes(msg.id) ? (
-                                  <div className="w-full flex justify-center items-center gap-2 px-4 py-2 border border-norm bg-norm/10 text-norm rounded-xl transition-all duration-500">
-                                     <Sparkles size={16} /> 
-                                     <span className="text-sm font-semibold">{isEn ? 'Solution Applied' : 'Решение применено'}</span>
-                                  </div>
-                               ) : (
-                                  <button 
-                                    onClick={() => handleApplySolution(msg.id, msg.response!)}
-                                    className="w-full relative shadow-md group hover:-translate-y-0.5 hover:shadow-lg transition-all flex justify-center items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-accent to-blue-500 text-white rounded-xl overflow-hidden font-semibold"
-                                  >
-                                    <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-                                    <Sparkles size={16} />
+                                {appliedActions.includes(msg.id) ? (
+                                   <div className="w-full flex justify-center items-center gap-2 px-4 py-2 border border-norm bg-norm text-white rounded-md transition-all duration-500">
+                                      <Sparkles size={16} /> 
+                                      <span className="text-sm font-semibold">{isEn ? 'Solution Applied' : 'Решение применено'}</span>
+                                   </div>
+                                ) : (
+                                   <button 
+                                     onClick={() => handleApplySolution(msg.id, msg.response!)}
+                                     className="w-full flex justify-center items-center gap-2 px-4 py-2 bg-accent text-zinc-950 rounded-md font-semibold"
+                                   >
+                                     <Sparkles size={16} />
                                     <span className="text-sm">{isEn ? 'Apply Solution' : 'Применить решение'}</span>
                                   </button>
                                )}
@@ -242,7 +241,7 @@ export const SmartAdvisor = () => {
 
               {isLoading && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
-                  <div className="bg-card border border-border shadow-sm rounded-2xl rounded-tl-sm p-4 flex items-center gap-3 w-3/4">
+                  <div className="bg-zinc-800/50 border border-zinc-800 rounded-md rounded-tl-sm p-4 flex items-center gap-3 w-3/4">
                      <Loader2 size={18} className="animate-spin text-accent shrink-0" />
                      <span className="text-sm font-medium text-muted-foreground truncate transition-all duration-300">
                        {loadingPhasesText[loadingPhase]}

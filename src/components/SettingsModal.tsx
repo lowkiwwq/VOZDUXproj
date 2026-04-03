@@ -32,7 +32,7 @@ export const SettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="bg-card w-full max-w-md rounded-xl shadow-2xl p-6 relative border border-border"
+          className="bg-card w-full max-w-md rounded-md p-6 relative border border-border"
         >
           <button 
             onClick={onClose}
@@ -56,7 +56,7 @@ export const SettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                   value={geminiKey}
                   onChange={(e) => setGeminiKey(e.target.value)}
                   placeholder="AIzaSy..."
-                  className="w-full bg-background border border-border text-foreground text-sm rounded-lg pr-10 focus:ring-accent focus:border-accent block p-2.5"
+                  className="w-full bg-background border border-border text-foreground text-sm rounded-md pr-10 focus:ring-accent focus:border-accent block p-2.5"
                 />
                 <KeyStatus value={geminiKey} />
               </div>
@@ -75,7 +75,7 @@ export const SettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                   value={waqiKey}
                   onChange={(e) => setWaqiKey(e.target.value)}
                   placeholder="xxxxxxxxx"
-                  className="w-full bg-background border border-border text-foreground text-sm rounded-lg pr-10 focus:ring-accent focus:border-accent block p-2.5"
+                  className="w-full bg-background border border-border text-foreground text-sm rounded-md pr-10 focus:ring-accent focus:border-accent block p-2.5"
                 />
                 <KeyStatus value={waqiKey} />
               </div>
@@ -94,7 +94,7 @@ export const SettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                   value={tomtomKey}
                   onChange={(e) => setTomtomKey(e.target.value)}
                   placeholder="xxxxxxxxx"
-                  className="w-full bg-background border border-border text-foreground text-sm rounded-lg pr-10 focus:ring-accent focus:border-accent block p-2.5"
+                  className="w-full bg-background border border-border text-foreground text-sm rounded-md pr-10 focus:ring-accent focus:border-accent block p-2.5"
                 />
                 <KeyStatus value={tomtomKey} />
               </div>
@@ -110,7 +110,7 @@ export const SettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as 'ru' | 'en')}
-                className="bg-background border border-border text-foreground text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                className="bg-background border border-border text-foreground text-sm rounded-md focus:ring-accent focus:border-accent block w-full p-2.5"
               >
                 <option value="ru">Русский</option>
                 <option value="en">English</option>
@@ -122,7 +122,7 @@ export const SettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <div className="mt-8 flex justify-end">
             <button 
               onClick={onClose}
-              className="bg-accent hover:bg-accent/90 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+              className="bg-accent hover:bg-accent/90 text-white font-medium py-2 px-4 rounded-md transition-colors"
             >
               {language === 'ru' ? 'Закрыть' : 'Close'}
             </button>

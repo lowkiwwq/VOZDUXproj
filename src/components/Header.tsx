@@ -39,7 +39,7 @@ export const Header: React.FC = () => {
     <>
       <header className="h-16 px-6 border-b border-border bg-card flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-4">
-          <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-white font-bold">
+          <div className="w-8 h-8 rounded-md bg-accent flex items-center justify-center text-zinc-950 font-bold">
             P
           </div>
           <h1 className="text-xl font-bold tracking-tight hidden sm:block">
