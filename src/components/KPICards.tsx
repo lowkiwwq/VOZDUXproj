@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useCityData, ModuleType, EcologyData, TransportData } from '../hooks/useCityData';
+import { useCityData, ModuleType, EcologyData, TransportData, SafetyData, HousingData } from '../hooks/useCityData';
 import { motion } from 'framer-motion';
 import { 
   Car, CarFront, AlertTriangle, Clock, 
-  Wind, Thermometer, CloudFog, Factory 
+  Wind, Thermometer, CloudFog, Factory,
+  Camera, Shield, Droplets, Zap, MessageSquare
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -29,8 +30,6 @@ const KPICard = ({ title, value, unit, icon, status, trend, isMock, lastUpdated 
   };
 
   const bgPulse = isCritical ? 'bg-destructive/5 animate-pulse-fast' : 'bg-card';
-  
-  // Format the time as HH:mm:ss
   const timeStr = lastUpdated ? lastUpdated.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '--:--:--';
 
   return (
@@ -44,7 +43,6 @@ const KPICard = ({ title, value, unit, icon, status, trend, isMock, lastUpdated 
         bgPulse
       )}
     >
-      {/* Mock Badge */}
       {isMock && (
         <div className="absolute top-0 right-0 bg-alert text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-sm z-10 flex gap-1 items-center">
           ⚠ {language === 'ru' ? 'Демо-режим' : 'Mock data'}
@@ -76,7 +74,7 @@ const KPICard = ({ title, value, unit, icon, status, trend, isMock, lastUpdated 
 
       {trend !== 0 && (
         <div className="absolute bottom-4 right-6 text-xs font-semibold flex items-center gap-1">
-          <span className={trend > 0 ? (trend > 5 ? 'text-destructive' : 'text-alert') : 'text-norm'}>
+          <span className={trend > 0 ? (status === 'КРИТИЧНО' ? 'text-destructive' : 'text-alert') : 'text-norm'}>
             {trend > 0 ? '↑' : '↓'} {Math.abs(trend).toFixed(1)}%
           </span>
         </div>
@@ -86,11 +84,13 @@ const KPICard = ({ title, value, unit, icon, status, trend, isMock, lastUpdated 
 };
 
 export const KPICards: React.FC<{ activeModule: ModuleType }> = ({ activeModule }) => {
-  const { transport, ecology, language, isMockEcology, isMockTransport, lastUpdated } = useCityData();
+  const { transport, ecology, safety, housing, language, isMockEcology, isMockTransport, lastUpdated } = useCityData();
   
-  // Keep history for trend calculation
   const [prevT, setPrevT] = useState<TransportData>(transport);
   const [prevE, setPrevE] = useState<EcologyData>(ecology);
+  const [prevS, setPrevS] = useState<SafetyData>(safety);
+  const [prevH, setPrevH] = useState<HousingData>(housing);
+
   const isFirstRender = useRef(true);
 
   useEffect(() => {
@@ -98,13 +98,14 @@ export const KPICards: React.FC<{ activeModule: ModuleType }> = ({ activeModule 
       isFirstRender.current = false;
       return;
     }
-    // Update previous values every min to show trend vs "past"
     const timer = setInterval(() => {
       setPrevT(transport);
       setPrevE(ecology);
-    }, 60000);
+      setPrevS(safety);
+      setPrevH(housing);
+    }, 60000); // 1 min previous window comparison
     return () => clearInterval(timer);
-  }, [transport, ecology]);
+  }, [transport, ecology, safety, housing]);
 
   const calcTrend = (curr: number, prev: number) => {
     if (prev === 0) return 0;
@@ -115,7 +116,7 @@ export const KPICards: React.FC<{ activeModule: ModuleType }> = ({ activeModule 
     return [
       {
         title: language === 'ru' ? 'Средняя скорость' : 'Avg Speed',
-        value: transport.avgSpeed.toFixed(1),
+        value: transport.avgSpeed.toFixed(0),
         unit: language === 'ru' ? 'км/ч' : 'km/h',
         icon: <Car size={16} />,
         status: transport.avgSpeed > 0 && transport.avgSpeed < 20 ? 'КРИТИЧНО' : transport.avgSpeed > 0 && transport.avgSpeed < 35 ? 'ВНИМАНИЕ' : 'НОРМА',
@@ -195,13 +196,113 @@ export const KPICards: React.FC<{ activeModule: ModuleType }> = ({ activeModule 
         icon: <Thermometer size={16} />,
         status: 'НОРМА',
         trend: calcTrend(ecology.temperature, prevE.temperature),
-        isMock: isMockEcology,
+        isMock: isMockEcology, // Since temperature can fall back from meteo
         lastUpdated
       }
     ];
   };
 
-  const cards = activeModule === 'transport' ? getTransportCards() : getEcologyCards();
+  const getSafetyCards = (): CardProps[] => {
+    return [
+      {
+        title: language === 'ru' ? 'Активные инциденты' : 'Active Incidents',
+        value: safety.activeIncidents,
+        unit: language === 'ru' ? 'шт.' : 'qty',
+        icon: <AlertTriangle size={16} />,
+        status: safety.activeIncidents > 15 ? 'КРИТИЧНО' : safety.activeIncidents >= 5 ? 'ВНИМАНИЕ' : 'НОРМА',
+        trend: calcTrend(safety.activeIncidents, prevS.activeIncidents),
+        isMock: true,
+        lastUpdated
+      },
+      {
+        title: language === 'ru' ? 'Реагирование' : 'Response Time',
+        value: safety.responseTime.toFixed(1),
+        unit: language === 'ru' ? 'мин' : 'min',
+        icon: <Clock size={16} />,
+        status: safety.responseTime > 20 ? 'КРИТИЧНО' : safety.responseTime > 10 ? 'ВНИМАНИЕ' : 'НОРМА',
+        trend: calcTrend(safety.responseTime, prevS.responseTime),
+        isMock: true,
+        lastUpdated
+      },
+      {
+        title: language === 'ru' ? 'Камеры онлайн' : 'Cameras Online',
+        value: safety.cameraOnline.toFixed(0),
+        unit: '%',
+        icon: <Camera size={16} />,
+        status: safety.cameraOnline < 70 ? 'КРИТИЧНО' : safety.cameraOnline < 90 ? 'ВНИМАНИЕ' : 'НОРМА',
+        trend: calcTrend(safety.cameraOnline, prevS.cameraOnline),
+        isMock: true,
+        lastUpdated
+      },
+      {
+        title: language === 'ru' ? 'Зона патрулей' : 'Patrol Coverage',
+        value: safety.patrolCoverage.toFixed(0),
+        unit: '%',
+        icon: <Shield size={16} />,
+        status: safety.patrolCoverage < 60 ? 'КРИТИЧНО' : safety.patrolCoverage < 80 ? 'ВНИМАНИЕ' : 'НОРМА',
+        trend: calcTrend(safety.patrolCoverage, prevS.patrolCoverage),
+        isMock: true,
+        lastUpdated
+      }
+    ];
+  };
+
+  const getHousingCards = (): CardProps[] => {
+    return [
+      {
+        title: language === 'ru' ? 'Давление воды' : 'Water Pressure',
+        value: housing.waterPressure.toFixed(1),
+        unit: language === 'ru' ? 'бар' : 'bar',
+        icon: <Droplets size={16} />,
+        status: (housing.waterPressure < 1.5 || housing.waterPressure > 6) ? 'КРИТИЧНО' : (housing.waterPressure < 2.5 || housing.waterPressure > 4.5) ? 'ВНИМАНИЕ' : 'НОРМА',
+        trend: calcTrend(housing.waterPressure, prevH.waterPressure),
+        isMock: true,
+        lastUpdated
+      },
+      {
+        title: language === 'ru' ? 'Нагрузка на сеть' : 'Electric Load',
+        value: housing.electricityLoad.toFixed(0),
+        unit: '%',
+        icon: <Zap size={16} />,
+        status: housing.electricityLoad > 90 ? 'КРИТИЧНО' : housing.electricityLoad > 75 ? 'ВНИМАНИЕ' : 'НОРМА',
+        trend: calcTrend(housing.electricityLoad, prevH.electricityLoad),
+        isMock: true,
+        lastUpdated
+      },
+      {
+        title: language === 'ru' ? 'Активные жалобы' : 'Complaints',
+        value: housing.activeComplaints,
+        unit: language === 'ru' ? 'заявок' : 'req',
+        icon: <MessageSquare size={16} />,
+        status: housing.activeComplaints > 60 ? 'КРИТИЧНО' : housing.activeComplaints > 30 ? 'ВНИМАНИЕ' : 'НОРМА',
+        trend: calcTrend(housing.activeComplaints, prevH.activeComplaints),
+        isMock: true,
+        lastUpdated
+      },
+      {
+        title: language === 'ru' ? 'Теплоноситель' : 'Heating Temp',
+        value: housing.heatingTemp.toFixed(1),
+        unit: '°C',
+        icon: <Thermometer size={16} />,
+        status: housing.heatingTemp < 55 ? 'КРИТИЧНО' : housing.heatingTemp < 65 ? 'ВНИМАНИЕ' : 'НОРМА',
+        trend: calcTrend(housing.heatingTemp, prevH.heatingTemp),
+        isMock: true,
+        lastUpdated
+      }
+    ];
+  };
+
+  const renderCards = () => {
+    switch (activeModule) {
+      case 'safety': return getSafetyCards();
+      case 'housing': return getHousingCards();
+      case 'ecology': return getEcologyCards();
+      case 'transport':
+      default: return getTransportCards();
+    }
+  }
+
+  const cards = renderCards();
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

@@ -100,18 +100,20 @@ const DashboardContent = () => {
           ) : (
             <div className="max-w-7xl mx-auto">
               <div className="md:hidden flex gap-2 mb-4 overflow-x-auto pb-2">
-                 <button 
-                   onClick={() => setActiveModule('transport')}
-                   className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${activeModule === 'transport' ? 'bg-accent text-white' : 'bg-muted'}`}
-                 >
-                   Транспорт
-                 </button>
-                 <button 
-                   onClick={() => setActiveModule('ecology')}
-                   className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${activeModule === 'ecology' ? 'bg-accent text-white' : 'bg-muted'}`}
-                 >
-                   Экология
-                 </button>
+                 {([
+                   { id: 'transport', label: 'Транспорт' },
+                   { id: 'ecology', label: 'Экология' },
+                   { id: 'safety', label: 'Безопасность' },
+                   { id: 'housing', label: 'ЖКХ' },
+                 ] as {id: ModuleType, label: string}[]).map(tab => (
+                   <button 
+                     key={tab.id}
+                     onClick={() => setActiveModule(tab.id)}
+                     className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${activeModule === tab.id ? 'bg-accent text-white' : 'bg-muted'}`}
+                   >
+                     {tab.label}
+                   </button>
+                 ))}
               </div>
 
               <KPICards activeModule={activeModule} />

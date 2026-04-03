@@ -1,9 +1,9 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { TransportData, EcologyData } from '../hooks/useCityData';
+import { TransportData, EcologyData, SafetyData, HousingData, Language } from '../hooks/useCityData';
 
 export interface AIResponse {
   situation: string;
-  severity: string;
+  severity: 'НОРМА' | 'ВНИМАНИЕ' | 'КРИТИЧНО' | 'NORMAL' | 'WARNING' | 'CRITICAL';
   severityReason: string;
   recommendations: string[];
   forecast: string;
@@ -11,113 +11,93 @@ export interface AIResponse {
 }
 
 export const generateAIAnalysis = async (
-  apiKey: string,
+  geminiKey: string,
   transport: TransportData,
   ecology: EcologyData,
-  language: 'ru' | 'en'
+  safety: SafetyData,
+  housing: HousingData,
+  lang: Language
 ): Promise<AIResponse> => {
-  if (!apiKey) {
-    return generateMockAIResponse(transport, ecology, language);
-  }
+  const isEn = lang === 'en';
 
-  try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash", 
-      generationConfig: {
-        responseMimeType: "application/json",
-      }
-    });
-
-    const langStr = language === 'ru' ? 'по-русски' : 'in English';
-    
-    // Convert current data to a readable string for the prompt
-    const avgSpeed = transport.avgSpeed.toFixed(1);
-    const congestion = transport.congestionIndex.toFixed(0);
-    const incidentCount = transport.incidentCount;
-    const aqi = ecology.aqi.toFixed(0);
-    const pm25 = ecology.pm25.toFixed(1);
-    const windSpeed = ecology.windSpeed.toFixed(1);
-    
-    const criticalZones = transport.trafficZones
-      .filter(z => z.load > 80)
-      .map(z => z.name)
-      .join(', ') || (language === 'ru' ? 'Нет' : 'None');
-
-    const prompt = `You are an analytical city management system for Almaty. 
-You must respond STRICTLY in JSON format without any markdown wrappers.
-Language of the response must be ${langStr}.
-
-JSON Structure:
+  const promptRu = `
+Ты — аналитическая система управления городом Алматы.
+Проанализируй текущие данные по всем 4 направлениям и ответь СТРОГО в формате JSON.
+Никаких других символов, маркдауна или текста вне JSON.
+Формат ответа:
 {
-  "situation": "Short description of what is happening (2-3 sentences)",
-  "severity": "НОРМА | ВНИМАНИЕ | КРИТИЧНО" (or "NORMAL | WARNING | CRITICAL" in English),
-  "severityReason": "Why this level was chosen (1 sentence)",
-  "recommendations": [
-    "Specific action 1",
-    "Specific action 2",
-    "Specific action 3"
-  ],
-  "forecast": "Forecast for the next 2 hours (1-2 sentences)",
-  "priority": "The most important action to take right now"
+  "situation": "Краткое описание текущей обстановки по всем модулям",
+  "severity": "НОРМА" или "ВНИМАНИЕ" или "КРИТИЧНО",
+  "severityReason": "Почему выбран такой статус (1 короткое предложение)",
+  "recommendations": ["Рекомендация 1", "Рекомендация 2", "Рекомендация 3"],
+  "forecast": "Краткосрочный прогноз на ближайшие часы",
+  "priority": "Главный приоритет действий для мэрии прямо сейчас"
 }
 
-Current Data:
-Transport: average speed ${avgSpeed} km/h, congestion ${congestion}%, incidents: ${incidentCount}
-Ecology: AQI ${aqi}, PM2.5 ${pm25} µg/m³, wind speed ${windSpeed} m/s
-Critical Zones: ${criticalZones}`;
+Данные:
+Транспорт: скорость ${transport.avgSpeed.toFixed(1)} км/ч, загруженность ${transport.congestionIndex.toFixed(1)}%, инциденты: ${transport.incidentCount}
+Экология: AQI ${ecology.aqi.toFixed(0)}, PM2.5 ${ecology.pm25.toFixed(1)} мкг/м³
+Безопасность: активных инцидентов ${safety.activeIncidents}, время реагирования ${safety.responseTime.toFixed(1)} мин, камеры онлайн ${safety.cameraOnline.toFixed(0)}%
+ЖКХ: нагрузка сети ${housing.electricityLoad.toFixed(1)}%, жалоб ${housing.activeComplaints}, давление воды ${housing.waterPressure.toFixed(1)} бар, отопление ${housing.heatingTemp.toFixed(1)}°C
+`;
 
-    const result = await model.generateContent(prompt);
-    const content = result.response.text();
-    
-    // Attempt to parse the raw text back to JSON.
-    const cleanContent = content.replace(/^```json\n/, '').replace(/\n```$/, '').trim();
-    return JSON.parse(cleanContent) as AIResponse;
-    
-  } catch (error) {
-    console.error("AI API Error:", error);
-    return generateMockAIResponse(transport, ecology, language);
+  const promptEn = `
+You are the analytical management system for Almaty city.
+Analyze the current data for all 4 sectors and respond STRICTLY in JSON format.
+No markdown or text outside JSON.
+Format:
+{
+  "situation": "Brief description of the current situation across modules",
+  "severity": "NORMAL" or "WARNING" or "CRITICAL",
+  "severityReason": "Why this status was chosen (1 short sentence)",
+  "recommendations": ["Rec 1", "Rec 2", "Rec 3"],
+  "forecast": "Short-term forecast for the next hours",
+  "priority": "Top priority action for the city administration right now"
+}
+
+Data:
+Transport: speed ${transport.avgSpeed.toFixed(1)} km/h, congestion ${transport.congestionIndex.toFixed(1)}%, incidents: ${transport.incidentCount}
+Ecology: AQI ${ecology.aqi.toFixed(0)}, PM2.5 ${ecology.pm25.toFixed(1)} µg/m³
+Safety: active incidents ${safety.activeIncidents}, response time ${safety.responseTime.toFixed(1)} min, cameras online ${safety.cameraOnline.toFixed(0)}%
+Housing: electric load ${housing.electricityLoad.toFixed(1)}%, complaints ${housing.activeComplaints}, water pressure ${housing.waterPressure.toFixed(1)} bar, heating ${housing.heatingTemp.toFixed(1)}°C
+`;
+
+  const prompt = isEn ? promptEn : promptRu;
+
+  if (!geminiKey) {
+    return new Promise(resolve => {
+       setTimeout(() => {
+          let sev: 'НОРМА' | 'ВНИМАНИЕ' | 'КРИТИЧНО' | 'NORMAL' | 'WARNING' | 'CRITICAL' = isEn ? 'NORMAL' : 'НОРМА';
+          if (transport.congestionIndex > 80 || ecology.aqi > 200 || safety.activeIncidents > 15 || housing.electricityLoad > 90) sev = isEn ? 'CRITICAL' : 'КРИТИЧНО';
+          else if (transport.congestionIndex > 50 || ecology.aqi > 100 || safety.activeIncidents > 5 || housing.activeComplaints > 30) sev = isEn ? 'WARNING' : 'ВНИМАНИЕ';
+
+          resolve({
+            situation: isEn 
+              ? `Demonstration mode activated. Data processed locally. Traffic congestion is ${transport.congestionIndex.toFixed(0)}%, AQI is ${ecology.aqi.toFixed(0)}, Safety incidents at ${safety.activeIncidents}, Housing load at ${housing.electricityLoad.toFixed(0)}%.`
+              : `Активирован демо-режим. Загруженность дорог ${transport.congestionIndex.toFixed(0)}%, AQI составляет ${ecology.aqi.toFixed(0)}. Инцидентов: ${safety.activeIncidents}. Нагрузка ЖКХ: ${housing.electricityLoad.toFixed(0)}%.`,
+            severity: sev,
+            severityReason: isEn ? "Evaluated via local mock data engine" : "Оценка произведена локальным генератором",
+            recommendations: isEn 
+              ? ["Set up live API key for live analysis", "Monitor metric anomalies across modules"]
+              : ["Добавьте Gemini API ключ для живого анализа текста", "Продолжайте мониторинг четырех модулей"],
+            forecast: isEn ? "Stable operation within expected limits." : "Стабильное функционирование в заданных лимитах (заглушка).",
+            priority: isEn ? "Add an API key" : "Указать API ключ в настройках"
+          });
+       }, 1500);
+    });
   }
-};
 
-const generateMockAIResponse = (t: TransportData, e: EcologyData, lang: 'ru' | 'en'): AIResponse => {
-  const isCritical = e.aqi > 200 || t.congestionIndex > 80;
-  const isWarning = !isCritical && (e.aqi > 100 || t.congestionIndex > 50 || t.avgSpeed < 35);
-  
-  if (lang === 'en') {
-    return {
-      situation: isCritical 
-        ? "City is experiencing severe strain on both transport and air quality networks." 
-        : isWarning 
-          ? "There are moderate traffic jams and slightly elevated pollution levels in central areas." 
-          : "All city systems are operating normally. Traffic flows steadily and air quality is within acceptable limits.",
-      severity: isCritical ? "CRITICAL" : isWarning ? "WARNING" : "NORMAL",
-      severityReason: "Based on algorithmic fallback due to missing API key.",
-      recommendations: [
-        "Monitor the situation via visual dashboards.",
-        "Ensure emergency services are routed through less congested zones.",
-        "Prepare dynamic road signs for real-time adjustments."
-      ],
-      forecast: "Expect conditions to stabilize within the next 2 hours as peak time passes.",
-      priority: isCritical ? "Dispatch traffic officers to critical intersections." : "Maintain normal monitoring state."
-    };
+  const genAI = new GoogleGenerativeAI(geminiKey);
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+  try {
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }]
+    });
+    let text = result.response.text();
+    text = text.replace(/```(?:json)?\n?/g, '').replace(/```\n?/g, '').trim();
+    return JSON.parse(text) as AIResponse;
+  } catch (error: any) {
+    throw new Error('Gemini API Error: ' + error.message);
   }
-
-  // Russian fallback
-  return {
-    situation: isCritical 
-      ? "В городе наблюдается критическая нагрузка на транспортные сети и высокие уровни загрязнения воздуха." 
-      : isWarning 
-        ? "Наблюдаются умеренные заторы и повышенный уровень загрязнения в некоторых районах." 
-        : "Все системы города функционируют в штатном режиме. Движение стабильное, экология в норме.",
-    severity: isCritical ? "КРИТИЧНО" : isWarning ? "ВНИМАНИЕ" : "НОРМА",
-    severityReason: "Резервный ИИ (ключ API не предоставлен).",
-    recommendations: [
-      "Продолжать мониторинг через визуальные дашборды.",
-      "Обеспечить маршрутизацию экстренных служб в обход заторов.",
-      "Настроить динамические знаки на дорогах для перераспределения потока."
-    ],
-    forecast: "Ожидается стабилизация ситуации в течение ближайших 2 часов.",
-    priority: isCritical ? "Отправить экипажи полиции на ключевые перекрестки." : "Продолжать фоновый мониторинг."
-  };
 };

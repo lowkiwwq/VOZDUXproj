@@ -1,8 +1,7 @@
 import React from 'react';
-import { ModuleType } from '../hooks/useCityData';
-import { Truck, Leaf, Activity } from 'lucide-react';
+import { Truck, Leaf, Shield, Building2 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { useCityData } from '../hooks/useCityData';
+import { useCityData, ModuleType } from '../hooks/useCityData';
 
 interface SidebarProps {
   activeModule: ModuleType;
@@ -15,6 +14,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeModule, setActiveModule 
   const navItems = [
     { id: 'transport' as ModuleType, label: language === 'ru' ? 'Транспорт' : 'Transport', icon: <Truck size={20} /> },
     { id: 'ecology' as ModuleType, label: language === 'ru' ? 'Экология' : 'Ecology', icon: <Leaf size={20} /> },
+    { id: 'safety' as ModuleType, label: language === 'ru' ? 'Безопасность' : 'Safety', icon: <Shield size={20} /> },
+    { id: 'housing' as ModuleType, label: language === 'ru' ? 'ЖКХ' : 'Services', icon: <Building2 size={20} /> },
   ];
 
   return (

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, createContext, useContext, useRef } from 'react';
 
 export type AlertSeverity = 'НОРМА' | 'ВНИМАНИЕ' | 'КРИТИЧНО';
-export type ModuleType = 'transport' | 'ecology';
+export type ModuleType = 'transport' | 'ecology' | 'safety' | 'housing';
 export type Language = 'ru' | 'en';
 
 export interface TransportData {
@@ -27,6 +27,32 @@ export interface EcologyData {
   stationReadings: { name: string; lat: number; lng: number; aqi: number }[];
 }
 
+export interface SafetyData {
+  activeIncidents: number;
+  responseTime: number;
+  cameraOnline: number;
+  patrolCoverage: number;
+  incidentsByType: { type: string; count: number }[];
+  incidentsByDistrict: { district: string; count: number }[];
+  hourlyIncidents: { time: string; count: number }[];
+  emergencyCallsToday: number;
+  resolvedToday: number;
+}
+
+export interface HousingData {
+  waterPressure: number;
+  waterQuality: number;
+  electricityLoad: number;
+  heatingTemp: number;
+  activeComplaints: number;
+  resolvedToday: number;
+  plannedWorks: number;
+  emergencyWorks: number;
+  servicesByType: { service: string; complaints: number; status: string }[];
+  districtLoad: { district: string; waterPressure: number; electricLoad: number }[];
+  weeklyComplaints: { day: string; complaints: number }[];
+}
+
 export interface Alert {
   id: string;
   severity: AlertSeverity;
@@ -44,6 +70,8 @@ export interface ToastMessage {
 interface CityDataState {
   transport: TransportData;
   ecology: EcologyData;
+  safety: SafetyData;
+  housing: HousingData;
   alerts: Alert[];
   globalStatus: AlertSeverity;
   language: Language;
@@ -91,11 +119,78 @@ const generateMockEcology = (): EcologyData => ({
   windDir: 'СВ',
   humidity: 42,
   temperature: -3,
-  aqiHistory: [],
+  aqiHistory: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => ({
+    day,
+    aqi: 90 + Math.floor(Math.random() * 80)
+  })),
   stationReadings: [
     { name: 'Станция 1', lat: 43.222, lng: 76.851, aqi: 156 },
     { name: 'Станция 2', lat: 43.238, lng: 76.928, aqi: 142 },
   ],
+});
+
+const generateMockSafety = (): SafetyData => {
+  const hourlyIncidents = Array.from({ length: 24 }, (_, i) => {
+    // peaks at 02:00-04:00 and 18:00-22:00
+    let count = 2 + Math.floor(Math.random() * 3);
+    if ((i >= 2 && i <= 4) || (i >= 18 && i <= 22)) count += 5 + Math.floor(Math.random() * 4);
+    return { time: `${i.toString().padStart(2, '0')}:00`, count };
+  });
+
+  return {
+    activeIncidents: 7,
+    responseTime: 8.4,
+    cameraOnline: 87,
+    patrolCoverage: 74,
+    emergencyCallsToday: 134,
+    resolvedToday: 127,
+    incidentsByType: [
+      { type: "ДТП", count: 3 },
+      { type: "Кража", count: 2 },
+      { type: "Нарушение ПДД", count: 8 },
+      { type: "Драка", count: 1 },
+      { type: "Пожар", count: 1 },
+    ],
+    incidentsByDistrict: [
+      { district: "Алмалы", count: 4 },
+      { district: "Бостандык", count: 2 },
+      { district: "Медеу", count: 1 },
+      { district: "Ауэзов", count: 5 },
+      { district: "Жетысу", count: 3 },
+      { district: "Турксиб", count: 2 },
+    ],
+    hourlyIncidents
+  };
+};
+
+const generateMockHousing = (): HousingData => ({
+  waterPressure: 3.2,
+  waterQuality: 94,
+  electricityLoad: 68,
+  heatingTemp: 71,
+  activeComplaints: 23,
+  resolvedToday: 41,
+  plannedWorks: 5,
+  emergencyWorks: 2,
+  servicesByType: [
+    { service: "Водоснабжение", complaints: 8, status: "норма" },
+    { service: "Электроснабжение", complaints: 3, status: "норма" },
+    { service: "Отопление", complaints: 6, status: "внимание" },
+    { service: "Канализация", complaints: 4, status: "норма" },
+    { service: "Лифты", complaints: 2, status: "норма" },
+  ],
+  districtLoad: [
+    { district: "Алмалы", waterPressure: 3.1, electricLoad: 72 },
+    { district: "Бостандык", waterPressure: 3.4, electricLoad: 65 },
+    { district: "Медеу", waterPressure: 2.8, electricLoad: 58 },
+    { district: "Ауэзов", waterPressure: 3.6, electricLoad: 78 },
+    { district: "Жетысу", waterPressure: 3.2, electricLoad: 69 },
+    { district: "Турксиб", waterPressure: 2.9, electricLoad: 74 },
+  ],
+  weeklyComplaints: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((day, i) => ({
+    day,
+    complaints: i === 0 ? 45 : 15 + Math.floor(Math.random() * 20),
+  })),
 });
 
 // History Tracking
@@ -109,6 +204,9 @@ const CityDataContext = createContext<CityDataState | null>(null);
 export const CityDataProvider = ({ children }: { children: React.ReactNode }) => {
   const [transport, setTransport] = useState<TransportData>(generateMockTransport());
   const [ecology, setEcology] = useState<EcologyData>(generateMockEcology());
+  const [safety, setSafety] = useState<SafetyData>(generateMockSafety());
+  const [housing, setHousing] = useState<HousingData>(generateMockHousing());
+
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [globalStatus, setGlobalStatus] = useState<AlertSeverity>('НОРМА');
   
@@ -142,6 +240,18 @@ export const CityDataProvider = ({ children }: { children: React.ReactNode }) =>
 
   // Histories
   const tomtomHistory = useRef<{time: string, speed: number, timestamp: number}[]>(getLocalHistory('tomtom_history_almaty'));
+
+  if (tomtomHistory.current.length === 0) {
+    const nowTm = Date.now();
+    for (let i = 24; i >= 0; i--) {
+      tomtomHistory.current.push({
+        time: new Date(nowTm - i * 3600000).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+        speed: 20 + Math.random() * 15,
+        timestamp: nowTm - i * 3600000
+      });
+    }
+    try { localStorage.setItem('tomtom_history_almaty', JSON.stringify(tomtomHistory.current)); } catch {}
+  }
   
   const downsampleHistoryLog = (arr: any[], maxPoints: number) => {
     if (arr.length <= maxPoints) return arr;
@@ -149,240 +259,136 @@ export const CityDataProvider = ({ children }: { children: React.ReactNode }) =>
     return arr.filter((_, idx) => idx % step === 0);
   };
 
-  // ----- API FETCHERS -----
-  
-  const fetchOpenMeteo = async (): Promise<Partial<EcologyData>> => {
-    // 5 min updates, completely free
-    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=43.2567&longitude=76.9286&current=temperature_2m,wind_speed_10m,wind_direction_10m,relative_humidity_2m&timezone=Asia/Almaty`);
-    if (!res.ok) throw new Error('Meteo Failed');
-    const data = await res.json();
-    return {
-      temperature: data.current.temperature_2m,
-      windSpeed: data.current.wind_speed_10m,
-      windDir: data.current.wind_direction_10m + '°', // simplified degrees
-      humidity: data.current.relative_humidity_2m,
-    };
+  // ----- NOISE GENERATORS -----
+  const applyNoise = (val: number, rangePercent = 0.05) => {
+    const variation = val * (Math.random() * rangePercent * 2 - rangePercent);
+    return Math.max(0, val + variation);
   };
 
-  const fetchWAQI = async (token: string): Promise<Partial<EcologyData>> => {
-    if (!token) throw new Error('No WAQI Token');
-    const res = await fetch(`https://api.waqi.info/feed/almaty/?token=${token}`);
-    const data = await res.json();
-    if (data.status !== 'ok') throw new Error(data.data || 'WAQI Error');
-    
-    const aqi = data.data.aqi;
-    const pm25 = data.data.iaqi?.pm25?.v || 0;
-    const pm10 = data.data.iaqi?.pm10?.v || 0;
-    const no2 = data.data.iaqi?.no2?.v || 0;
-    const co = data.data.iaqi?.co?.v || 0;
-    
-    // Attempt historical AQI
-    let aqiHist = getLocalHistory<{day:string, aqi:number}>('aqi_history_almaty');
-    if (data.data.forecast?.daily?.pm25) {
-       // use roughly pm25 max forecast to represent aqi trends
-       const daily = data.data.forecast.daily.pm25.slice(-7);
-       aqiHist = daily.map((d: any) => ({ day: d.day.slice(-5), aqi: d.max }));
-       localStorage.setItem('aqi_history_almaty', JSON.stringify(aqiHist));
-    }
-
-    return { aqi, pm25, pm10, no2, co, aqiHistory: aqiHist };
-  };
-
-  const fetchTomTom = async (token: string): Promise<TransportData> => {
-    if (!token) throw new Error('No TomTom Token');
-    
-    const segments = [
-      { name: 'Аль-Фараби', point: '43.2364,76.9457' },
-      { name: 'Абая', point: '43.2603,76.9450' },
-      { name: 'Райымбека', point: '43.2532,76.9226' },
-      { name: 'Сейфуллина', point: '43.2657,76.9350' },
-      { name: 'Достык', point: '43.2489,76.9558' },
-    ];
-
-    let avgSpdSum = 0;
-    let freeFlowSum = 0;
-    let validCount = 0;
-    const trafficZones: { name: string; load: number }[] = [];
-
-    await Promise.all(segments.map(async (seg) => {
-      try {
-        const res = await fetch(`https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${seg.point}&key=${token}`);
-        if (!res.ok) throw new Error('TomTom limit/error');
-        const data = await res.json();
-        const ffs = data.flowSegmentData.freeFlowSpeed;
-        const cur = data.flowSegmentData.currentSpeed;
-        const load = Math.max(0, ((ffs - cur) / ffs) * 100);
-        
-        avgSpdSum += cur;
-        freeFlowSum += ffs;
-        validCount++;
-        trafficZones.push({ name: seg.name, load });
-      } catch (e) {
-        // silently skip single failed segments
-      }
+  // ----- ALL MOCK TICK ENGINE (10s) -----
+  const tickLocalMocks = useCallback(() => {
+    // Ecology Mock
+    setEcology(prev => ({
+      ...prev,
+      aqi: Math.min(300, applyNoise(prev.aqi, 0.05)),
+      pm25: Math.min(150, applyNoise(prev.pm25, 0.05)),
+      no2: Math.min(100, applyNoise(prev.no2, 0.05)),
+      temperature: applyNoise(prev.temperature, 0.03) // slight temp change
     }));
 
-    if (validCount === 0) throw new Error('All TomTom segments failed');
-
-    const avgSpeed = avgSpdSum / validCount;
-    const avgFreeFlow = freeFlowSum / validCount;
-    const congestionIndex = Math.max(0, ((avgFreeFlow - avgSpeed) / avgFreeFlow) * 100);
-
-    // Save history (only add 1 per 5 mins to hit 288 per 24h limit, but we interval often. Let's strictly add if 5m past)
-    const now = Date.now();
-    const lastHist = tomtomHistory.current.length > 0 ? tomtomHistory.current[tomtomHistory.current.length-1].timestamp : 0;
-    
-    if (now - lastHist > 1000 * 60 * 5 || tomtomHistory.current.length === 0) {
-       tomtomHistory.current.push({
-         time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-         speed: avgSpeed,
-         timestamp: now
-       });
-       
-       if (tomtomHistory.current.length > MAX_HISTORY_POINTS) {
-         tomtomHistory.current.shift();
-       }
-       localStorage.setItem('tomtom_history_almaty', JSON.stringify(tomtomHistory.current));
-    }
-
-    return {
-      avgSpeed,
-      congestionIndex,
-      incidentCount: Math.floor(congestionIndex / 20), // proxy estimation since we don't have incidence API explicitly
-      publicTransportDelay: (congestionIndex / 100) * 15,
-      trafficZones,
-      hourlySpeed: downsampleHistoryLog([...tomtomHistory.current], 24)
-    };
-  };
-
-  // ----- MAIN PIPELINE -----
-  
-  const performCycle = useCallback(async () => {
-    const isFirstTime = isInitialLoading;
-    
-    const results = await Promise.allSettled([
-      fetchWAQI(waqiKey),
-      fetchOpenMeteo(),
-      fetchTomTom(tomtomKey)
-    ]);
-
-    const [waqiRes, meteoRes, tomtomRes] = results;
-
-    let eUpdated = false;
-    let tUpdated = false;
-
-    // ECOLOGY PROCESSING
-    setEcology(prev => {
-      let nextEco = { ...prev };
+    // Transport Mock
+    setTransport(prev => {
+      const baseSpeed = applyNoise(prev.avgSpeed, 0.05);
+      const newCongestion = applyNoise(prev.congestionIndex, 0.05);
       
-      let gotWaqi = false;
-      let gotMeteo = false;
-
-      if (waqiRes.status === 'fulfilled') {
-        nextEco = { ...nextEco, ...waqiRes.value };
-        gotWaqi = true;
-      } else if (waqiKey) { // don't toast if simply empty key
-        addToast('Ошибка загрузки данных WAQI (Экология)', 'error');
+      const now = Date.now();
+      const lastHist = tomtomHistory.current.length > 0 ? tomtomHistory.current[tomtomHistory.current.length-1].timestamp : 0;
+      if (now - lastHist > 1000 * 60 * 5 || tomtomHistory.current.length === 0) {
+         tomtomHistory.current.push({
+           time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+           speed: baseSpeed,
+           timestamp: now
+         });
+         if (tomtomHistory.current.length > MAX_HISTORY_POINTS) tomtomHistory.current.shift();
+         localStorage.setItem('tomtom_history_almaty', JSON.stringify(tomtomHistory.current));
       }
 
-      if (meteoRes.status === 'fulfilled') {
-        nextEco = { ...nextEco, ...meteoRes.value };
-        gotMeteo = true;
-      } else {
-        addToast('Нет соединения с сервером погоды (Open-Meteo)', 'error');
-      }
-
-      const fullyWorking = gotWaqi && gotMeteo;
-      setIsMockEcology(!fullyWorking);
-
-      if (!fullyWorking) {
-        // Modulate mock slightly so it's not totally dead
-        const mockFn = generateMockEcology();
-        nextEco.aqi = mockFn.aqi + (Math.random() * 10 - 5);
-        nextEco.temperature = mockFn.temperature;
-        nextEco.pm25 = mockFn.pm25;
-      } else {
-        eUpdated = true;
-      }
-
-      return nextEco;
+      return {
+        ...prev,
+        avgSpeed: baseSpeed,
+        congestionIndex: newCongestion,
+        incidentCount: Math.max(0, Math.floor(newCongestion / 20) + (Math.random() > 0.8 ? 1 : 0)), // Add slight random incidents
+        hourlySpeed: downsampleHistoryLog([...tomtomHistory.current], 24)
+      };
     });
 
-    // TRANSPORT PROCESSING
-    setTransport(prev => {
-      if (tomtomRes.status === 'fulfilled') {
-        setIsMockTransport(false);
-        tUpdated = true;
-        return tomtomRes.value;
-      } else {
-        setIsMockTransport(true);
-        if (tomtomKey) { // only complain if key exists but failed (like 403)
-          addToast('Неверный TomTom API ключ или превышен лимит', 'error');
-        }
-        
-        let mockData = generateMockTransport();
-        const baseSpeed = mockData.avgSpeed + (Math.random() * 4 - 2);
-        
-        // Ensure mock history tracks for UI presentation
-        const now = Date.now();
-        const lastHist = tomtomHistory.current.length > 0 ? tomtomHistory.current[tomtomHistory.current.length-1].timestamp : 0;
-        if (now - lastHist > 1000 * 60 * 5 || tomtomHistory.current.length === 0) {
-           tomtomHistory.current.push({
-             time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-             speed: baseSpeed,
-             timestamp: now
-           });
-           if (tomtomHistory.current.length > MAX_HISTORY_POINTS) tomtomHistory.current.shift();
-           localStorage.setItem('tomtom_history_almaty', JSON.stringify(tomtomHistory.current));
-        }
-
-        return {
-          ...mockData,
-          avgSpeed: baseSpeed,
-          hourlySpeed: downsampleHistoryLog([...tomtomHistory.current], 24)
-        };
+    // Safety Mock
+    setSafety(prev => {
+      const isSpike = Math.random() < 0.05; // 5% chance
+      let newIncidents = prev.activeIncidents + (Math.random() > 0.5 ? 1 : -1);
+      newIncidents = Math.max(0, newIncidents);
+      
+      let newResponseTime = applyNoise(prev.responseTime, 0.05);
+      
+      if (isSpike) {
+        newIncidents = 20 + Math.floor(Math.random() * 5);
+        newResponseTime = 25 + Math.random() * 5;
       }
+
+      return {
+        ...prev,
+        activeIncidents: newIncidents,
+        responseTime: newResponseTime,
+        cameraOnline: Math.min(100, Math.max(0, applyNoise(prev.cameraOnline, 0.03))),
+        patrolCoverage: Math.min(100, Math.max(0, applyNoise(prev.patrolCoverage, 0.03)))
+      };
+    });
+
+    // Housing Mock
+    setHousing(prev => {
+      const isSpike = Math.random() < 0.05; // 5%
+      let newLoad = applyNoise(prev.electricityLoad, 0.04);
+      let newComplaints = prev.activeComplaints + (Math.random() > 0.5 ? Math.floor(Math.random() * 3) : -Math.floor(Math.random() * 3));
+      newComplaints = Math.max(0, newComplaints);
+
+      if (isSpike) {
+        newLoad = 95 + Math.random() * 4;
+        newComplaints = 70 + Math.floor(Math.random() * 15);
+      }
+
+      return {
+        ...prev,
+        waterPressure: Math.max(0, applyNoise(prev.waterPressure, 0.05)),
+        electricityLoad: Math.min(100, Math.max(0, newLoad)),
+        activeComplaints: newComplaints,
+        heatingTemp: Math.max(0, applyNoise(prev.heatingTemp, 0.03)),
+      };
     });
 
     setLastUpdated(new Date());
-    if (isFirstTime) setIsInitialLoading(false);
+    setIsInitialLoading(false);
+  }, []);
 
-  }, [waqiKey, tomtomKey, addToast]); // omitted isInitialLoading intentionally
-
-  // Interval manager
+  // Interval execution logic
   useEffect(() => {
-    // Initial fetch
-    performCycle();
+    tickLocalMocks(); // initialize
+    setIsMockEcology(true);
+    setIsMockTransport(true);
+    const mockInterval = setInterval(tickLocalMocks, 10000); // 10s local ticks
+    return () => clearInterval(mockInterval);
+  }, [tickLocalMocks]);
 
-    // The requirements mention WAQI=60s, Meteo=5m, Tomtom=30s.
-    // For simplicity, we just run the pipeline strictly every 30 seconds.
-    // The APIs will resolve correctly. Meteo and WAQI might be fetched more often than 5m, 
-    // but Open-Meteo accepts ~10k calls/day and doesn't require a key, so every 30s is fine.
-    const interval = setInterval(performCycle, 30000); 
-    return () => clearInterval(interval);
-  }, [performCycle]);
-
-  // Evaluate alerts
+  // Evaluate alerts universally
   useEffect(() => {
     const newAlerts: Alert[] = [];
     
-    // Transport checks
-    if (transport.avgSpeed > 0 && transport.avgSpeed < 20) {
-      newAlerts.push({ id: `t-speed-${Date.now()}`, severity: 'КРИТИЧНО', message: `Средняя скорость < 20 км/ч (${transport.avgSpeed.toFixed(1)})`, timestamp: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}), module: 'transport' });
-    } else if (transport.avgSpeed > 0 && transport.avgSpeed < 35) {
-      newAlerts.push({ id: `t-speed-${Date.now()}`, severity: 'ВНИМАНИЕ', message: `Средняя скорость снижена (${transport.avgSpeed.toFixed(1)})`, timestamp: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}), module: 'transport' });
-    }
+    // Transport
+    if (transport.avgSpeed > 0 && transport.avgSpeed < 20) newAlerts.push({ id: `t-speed-${Date.now()}`, severity: 'КРИТИЧНО', message: `Средняя скорость < 20 км/ч`, timestamp: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}), module: 'transport' });
+    else if (transport.avgSpeed > 0 && transport.avgSpeed < 35) newAlerts.push({ id: `t-speed-${Date.now()}`, severity: 'ВНИМАНИЕ', message: `Средняя скорость снижена`, timestamp: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}), module: 'transport' });
 
-    if (transport.congestionIndex > 80) {
-      newAlerts.push({ id: `t-cong-${Date.now()}`, severity: 'КРИТИЧНО', message: `Загруженность ${transport.congestionIndex.toFixed(0)}%`, timestamp: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}), module: 'transport' });
-    }
+    if (transport.congestionIndex > 80) newAlerts.push({ id: `t-cong-${Date.now()}`, severity: 'КРИТИЧНО', message: `Дорожная загруженность ${transport.congestionIndex.toFixed(0)}%`, timestamp: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}), module: 'transport' });
 
-    // Ecology checks
-    if (ecology.aqi > 200) {
-      newAlerts.push({ id: `e-aqi-${Date.now()}`, severity: 'КРИТИЧНО', message: `Критический уровень качества воздуха (AQI: ${ecology.aqi.toFixed(0)})`, timestamp: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}), module: 'ecology' });
-    } else if (ecology.aqi > 100) {
-      newAlerts.push({ id: `e-aqi-${Date.now()}`, severity: 'ВНИМАНИЕ', message: `Качество воздуха ухудшено (AQI: ${ecology.aqi.toFixed(0)})`, timestamp: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}), module: 'ecology' });
-    }
+    // Ecology
+    if (ecology.aqi > 200) newAlerts.push({ id: `e-aqi-${Date.now()}`, severity: 'КРИТИЧНО', message: `Критический уровень качества воздуха`, timestamp: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}), module: 'ecology' });
+    else if (ecology.aqi > 100) newAlerts.push({ id: `e-aqi-${Date.now()}`, severity: 'ВНИМАНИЕ', message: `Воздух загрязнен (AQI > 100)`, timestamp: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}), module: 'ecology' });
+
+    // Safety
+    if (safety.activeIncidents > 15) newAlerts.push({ id: `s-inc-c-${Date.now()}`, severity: 'КРИТИЧНО', message: `Множественные инциденты безопасности: ${safety.activeIncidents}`, timestamp: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}), module: 'safety' });
+    else if (safety.activeIncidents > 5) newAlerts.push({ id: `s-inc-w-${Date.now()}`, severity: 'ВНИМАНИЕ', message: `Повышенное кол-во инцидентов: ${safety.activeIncidents}`, timestamp: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}), module: 'safety' });
+
+    if (safety.responseTime > 20) newAlerts.push({ id: `s-rep-c-${Date.now()}`, severity: 'КРИТИЧНО', message: `Среднее время реагирования экстренных служб > 20 мин`, timestamp: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}), module: 'safety' });
+    
+    if (safety.cameraOnline < 70) newAlerts.push({ id: `s-cam-c-${Date.now()}`, severity: 'КРИТИЧНО', message: `Онлайн камер наблюдения < 70%`, timestamp: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}), module: 'safety' });
+
+    // Housing
+    if (housing.waterPressure < 1.5 || housing.waterPressure > 6) newAlerts.push({ id: `h-wat-c-${Date.now()}`, severity: 'КРИТИЧНО', message: `Давление воды вне нормы: ${housing.waterPressure.toFixed(1)} бар`, timestamp: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}), module: 'housing' });
+    
+    if (housing.electricityLoad > 90) newAlerts.push({ id: `h-el-c-${Date.now()}`, severity: 'КРИТИЧНО', message: `Риск веерных отключений, нагрузка электросети ${housing.electricityLoad.toFixed(1)}%`, timestamp: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}), module: 'housing' });
+    
+    if (housing.activeComplaints > 60) newAlerts.push({ id: `h-com-c-${Date.now()}`, severity: 'КРИТИЧНО', message: `Массовые жалобы ЖКХ: ${housing.activeComplaints}`, timestamp: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}), module: 'housing' });
+    else if (housing.activeComplaints > 30) newAlerts.push({ id: `h-com-w-${Date.now()}`, severity: 'ВНИМАНИЕ', message: `Повышенные жалобы жителей: ${housing.activeComplaints}`, timestamp: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}), module: 'housing' });
+
+    if (housing.heatingTemp < 55) newAlerts.push({ id: `h-heat-c-${Date.now()}`, severity: 'КРИТИЧНО', message: `Отказ системы теплоснабжения: ${housing.heatingTemp.toFixed(1)}°C`, timestamp: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}), module: 'housing' });
 
     setAlerts(newAlerts);
 
@@ -390,13 +396,13 @@ export const CityDataProvider = ({ children }: { children: React.ReactNode }) =>
     else if (newAlerts.some(a => a.severity === 'ВНИМАНИЕ')) setGlobalStatus('ВНИМАНИЕ');
     else setGlobalStatus('НОРМА');
 
-  }, [transport, ecology]);
+  }, [transport, ecology, safety, housing]);
 
   const dismissAlert = (id: string) => setAlerts(prev => prev.filter(a => a.id !== id));
 
   return (
     <CityDataContext.Provider value={{
-      transport, ecology, alerts, globalStatus, language, setLanguage,
+      transport, ecology, safety, housing, alerts, globalStatus, language, setLanguage,
       geminiKey, setGeminiKey, waqiKey, setWaqiKey, tomtomKey, setTomtomKey,
       dismissAlert, toasts, addToast, removeToast,
       isInitialLoading, isMockEcology, isMockTransport, lastUpdated

@@ -6,17 +6,18 @@ import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const AIAnalysis: React.FC = () => {
-  const { transport, ecology, geminiKey, language } = useCityData();
+  const { transport, ecology, safety, housing, geminiKey, language, addToast } = useCityData();
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState<AIResponse | null>(null);
 
   const handleAnalyze = async () => {
     setLoading(true);
     try {
-      const result = await generateAIAnalysis(geminiKey, transport, ecology, language);
+      const result = await generateAIAnalysis(geminiKey, transport, ecology, safety, housing, language);
       setAnalysis(result);
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      console.error('AI ERROR:', e);
+      addToast(e.message || 'Error running AI analysis', 'error');
     } finally {
       setLoading(false);
     }
