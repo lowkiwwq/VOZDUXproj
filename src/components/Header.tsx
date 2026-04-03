@@ -39,9 +39,20 @@ export const Header: React.FC = () => {
     <>
       <header className="h-16 px-6 border-b border-border bg-card flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-4">
-          <div className="w-8 h-8 rounded-md bg-accent flex items-center justify-center text-zinc-950 font-bold">
-            P
-          </div>
+          <svg className="w-9 h-9 text-accent shrink-0" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Wi-Fi lines */}
+            <path d="M35 18C35 18 42.5 12 50 12C57.5 12 65 18 65 18" stroke="currentColor" strokeWidth="4" strokeLinecap="round"/>
+            <path d="M42 24C42 24 46 20 50 20C54 20 58 24 58 24" stroke="currentColor" strokeWidth="4" strokeLinecap="round"/>
+            <circle cx="50" cy="31" r="3" fill="currentColor"/>
+            {/* Buildings */}
+            <rect x="28" y="55" width="12" height="35" fill="currentColor"/>
+            <rect x="42" y="40" width="16" height="50" fill="currentColor"/>
+            <rect x="60" y="50" width="12" height="40" fill="currentColor"/>
+            {/* Overlay line and accent block */}
+            <rect x="60" y="38" width="6" height="10" fill="#3b82f6"/>
+            <path d="M42 45 L60 45" stroke="hsl(var(--card))" strokeWidth="3"/>
+            <path d="M50 45 L50 90" stroke="hsl(var(--card))" strokeWidth="3"/>
+          </svg>
           <h1 className="text-xl font-bold tracking-tight hidden sm:block">
             SmartCity KZ
           </h1>
