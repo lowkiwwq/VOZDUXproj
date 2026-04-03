@@ -1,0 +1,49 @@
+import React from 'react';
+import { ModuleType } from '../hooks/useCityData';
+import { Truck, Leaf, Activity } from 'lucide-react';
+import { cn } from '../lib/utils';
+import { useCityData } from '../hooks/useCityData';
+
+interface SidebarProps {
+  activeModule: ModuleType;
+  setActiveModule: (m: ModuleType) => void;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ activeModule, setActiveModule }) => {
+  const { language } = useCityData();
+
+  const navItems = [
+    { id: 'transport' as ModuleType, label: language === 'ru' ? 'Транспорт' : 'Transport', icon: <Truck size={20} /> },
+    { id: 'ecology' as ModuleType, label: language === 'ru' ? 'Экология' : 'Ecology', icon: <Leaf size={20} /> },
+  ];
+
+  return (
+    <aside className="w-64 border-r border-border bg-card hidden md:block">
+      <div className="p-4">
+        <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4 px-3">
+          {language === 'ru' ? 'Модули' : 'Modules'}
+        </div>
+        <nav className="space-y-2">
+          {navItems.map((item) => {
+            const isActive = activeModule === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveModule(item.id)}
+                className={cn(
+                  "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                  isActive 
+                    ? "bg-accent text-white shadow-md shadow-accent/20" 
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                {item.icon}
+                {item.label}
+              </button>
+            )
+          })}
+        </nav>
+      </div>
+    </aside>
+  );
+};
