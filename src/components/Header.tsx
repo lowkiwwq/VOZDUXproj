@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useCityData } from '../hooks/useCityData';
-import { Settings, Moon, Sun, Activity } from 'lucide-react';
+import { Settings, Moon, Sun, Activity, Bot } from 'lucide-react';
 import { SettingsModal } from './SettingsModal';
 
 export const Header: React.FC = () => {
-  const { globalStatus, language } = useCityData();
+  const { globalStatus, language, isAdvisorOpen, setIsAdvisorOpen } = useCityData();
   const [time, setTime] = useState(new Date());
   const [isDark, setIsDark] = useState(true);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -43,22 +43,31 @@ export const Header: React.FC = () => {
             P
           </div>
           <h1 className="text-xl font-bold tracking-tight hidden sm:block">
-            Almaty City Pulse
+            SmartCity KZ
           </h1>
         </div>
 
         <div className="flex items-center gap-6">
           <div className="hidden md:block text-sm font-medium text-muted-foreground mr-4">
-            {time.toLocaleDateString('ru-RU')} • {time.toLocaleTimeString('ru-RU')}
+            {time.toLocaleDateString(language === 'en' ? 'en-US' : 'ru-RU')} • {time.toLocaleTimeString(language === 'en' ? 'en-US' : 'ru-RU')}
           </div>
           
           {getStatusBadge()}
 
           <div className="w-px h-6 bg-border mx-2"></div>
 
-          <button onClick={toggleTheme} className="text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={toggleTheme} className="text-muted-foreground hover:text-foreground transition-colors mr-2">
             {isDark ? <Sun size={20} /> : <Moon size={20} />}
           </button>
+          
+          <button 
+            onClick={() => setIsAdvisorOpen(!isAdvisorOpen)} 
+            className={`transition-colors relative p-2 rounded-full ${isAdvisorOpen ? 'bg-accent/20 text-accent' : 'bg-muted/50 text-foreground hover:bg-accent/10 hover:text-accent'}`}
+          >
+            <Bot size={20} />
+            <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-accent rounded-full border-2 border-card animate-pulse-fast"></span>
+          </button>
+          <div className="w-px h-6 bg-border mx-2"></div>
           
           <button onClick={() => setIsSettingsOpen(true)} className="text-muted-foreground hover:text-foreground transition-colors">
             <Settings size={20} />

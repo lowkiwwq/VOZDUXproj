@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { CityDataProvider, ModuleType, useCityData } from './hooks/useCityData';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
@@ -6,6 +6,9 @@ import { KPICards } from './components/KPICards';
 import { Charts } from './components/Charts';
 import { AlertsPanel } from './components/AlertsPanel';
 import { AIAnalysis } from './components/AIAnalysis';
+import { CityMap } from './components/CityMap';
+import { SmartAdvisor } from './components/SmartAdvisor';
+import { ReportsView } from './components/ReportsView';
 import { Loader2, X, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from './lib/utils';
@@ -46,12 +49,15 @@ const ToastManager = () => {
 };
 
 const LoadingLayout = () => {
+  const { language } = useCityData();
+  const isEn = language === 'en';
+  
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Top Banner */}
       <div className="bg-accent text-white px-4 py-3 rounded-xl flex justify-center items-center gap-3 animate-pulse shadow-md">
          <Loader2 className="animate-spin" size={20} />
-         <span className="font-medium text-sm">Загрузка данных города Алматы...</span>
+         <span className="font-medium text-sm">{isEn ? 'Loading Smart City Data...' : 'Загрузка данных города Алматы...'}</span>
       </div>
 
       {/* KPI Cards Skeletons */}
@@ -85,7 +91,8 @@ const LoadingLayout = () => {
 
 const DashboardContent = () => {
   const [activeModule, setActiveModule] = useState<ModuleType>('transport');
-  const { isInitialLoading } = useCityData();
+  const cityData = useCityData();
+  const { isInitialLoading } = cityData;
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background">
@@ -101,10 +108,11 @@ const DashboardContent = () => {
             <div className="max-w-7xl mx-auto">
               <div className="md:hidden flex gap-2 mb-4 overflow-x-auto pb-2">
                  {([
-                   { id: 'transport', label: 'Транспорт' },
-                   { id: 'ecology', label: 'Экология' },
-                   { id: 'safety', label: 'Безопасность' },
-                   { id: 'housing', label: 'ЖКХ' },
+                   { id: 'transport', label: cityData.language === 'en' ? 'Transport' : 'Транспорт' },
+                   { id: 'ecology', label: cityData.language === 'en' ? 'Ecology' : 'Экология' },
+                   { id: 'safety', label: cityData.language === 'en' ? 'Safety' : 'Безопасность' },
+                   { id: 'housing', label: cityData.language === 'en' ? 'Housing' : 'ЖКХ' },
+                   { id: 'reports', label: cityData.language === 'en' ? 'Reports' : 'Отчеты' },
                  ] as {id: ModuleType, label: string}[]).map(tab => (
                    <button 
                      key={tab.id}
@@ -116,24 +124,31 @@ const DashboardContent = () => {
                  ))}
               </div>
 
-              <KPICards activeModule={activeModule} />
-              
-              <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-                <div className="xl:col-span-3">
-                  <Charts activeModule={activeModule} />
-                  <AIAnalysis />
-                </div>
-                
-                <div className="xl:col-span-1 h-[600px] xl:h-auto">
-                  <AlertsPanel />
-                </div>
-              </div>
+              {activeModule === 'reports' ? (
+                <ReportsView />
+              ) : (
+                <>
+                  <KPICards activeModule={activeModule} />
+                  <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 mt-6">
+                    <div className="xl:col-span-3">
+                      <Charts activeModule={activeModule} />
+                      <CityMap activeModule={activeModule} data={cityData} />
+                      <AIAnalysis />
+                    </div>
+                    
+                    <div className="xl:col-span-1 h-[600px] xl:h-auto">
+                      <AlertsPanel />
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </main>
       </div>
 
       <ToastManager />
+      <SmartAdvisor />
     </div>
   );
 };

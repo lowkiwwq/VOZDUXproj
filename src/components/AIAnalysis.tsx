@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useCityData } from '../hooks/useCityData';
 import { generateAIAnalysis, AIResponse } from '../lib/gemini';
-import { BrainCircuit, Loader2, Target, Clock, Zap, AlertTriangle } from 'lucide-react';
+import { BrainCircuit, Loader2, Target, Clock, Zap } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -25,12 +25,7 @@ export const AIAnalysis: React.FC = () => {
 
   return (
     <div className="bg-card border border-border rounded-xl p-6 shadow-sm mb-6 relative overflow-hidden">
-      {/* Background glow if critical */}
-      {analysis?.severity === 'КРИТИЧНО' || analysis?.severity === 'CRITICAL' ? (
-        <div className="absolute top-0 right-0 w-64 h-64 bg-destructive/10 blur-3xl rounded-full -z-10 pointer-events-none" />
-      ) : analysis?.severity === 'ВНИМАНИЕ' || analysis?.severity === 'WARNING' ? (
-        <div className="absolute top-0 right-0 w-64 h-64 bg-alert/10 blur-3xl rounded-full -z-10 pointer-events-none" />
-      ) : null}
+
 
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold flex items-center gap-2">

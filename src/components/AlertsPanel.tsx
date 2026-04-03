@@ -1,18 +1,19 @@
 import React from 'react';
-import { useCityData, ModuleType } from '../hooks/useCityData';
-import { Plane, Leaf, Activity } from 'lucide-react';
+import { useCityData } from '../hooks/useCityData';
+import { Activity } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const AlertsPanel: React.FC = () => {
   const { alerts, dismissAlert, language } = useCityData();
+  const isEn = language === 'en';
 
   return (
     <div className="bg-card border border-border rounded-xl p-4 shadow-sm h-full flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-lg flex items-center gap-2">
           <Activity size={18} className="text-muted-foreground" />
-          {language === 'ru' ? 'Активные Уведомления' : 'Active Alerts'}
+          {isEn ? 'Active Alerts' : 'Активные Уведомления'}
         </h3>
         <span className="text-xs font-medium bg-muted px-2 py-1 rounded-full">
           {alerts.length}
@@ -26,7 +27,7 @@ export const AlertsPanel: React.FC = () => {
               initial={{ opacity: 0 }} animate={{ opacity: 1 }}
               className="text-center text-muted-foreground text-sm py-10"
             >
-              {language === 'ru' ? 'Нет активных уведомлений. Все системы в норме.' : 'No active alerts. All systems normal.'}
+              {isEn ? 'No active alerts. All systems normal.' : 'Нет активных уведомлений. Все системы в норме.'}
             </motion.div>
           ) : (
             alerts.map(alert => (
@@ -55,7 +56,7 @@ export const AlertsPanel: React.FC = () => {
                       alert.severity === 'КРИТИЧНО' ? 'text-destructive' :
                       alert.severity === 'ВНИМАНИЕ' ? 'text-alert' : 'text-norm'
                     )}>
-                      {alert.severity}
+                      {isEn ? (alert.severity === 'КРИТИЧНО' ? 'CRITICAL' : alert.severity === 'ВНИМАНИЕ' ? 'WARNING' : 'NORMAL') : alert.severity}
                     </span>
                   </div>
                   <span className="text-xs text-muted-foreground">{alert.timestamp}</span>

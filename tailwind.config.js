@@ -33,7 +33,7 @@ export default {
           foreground: "hsl(var(--muted-foreground))",
         },
         accent: {
-          DEFAULT: "#6366F1",
+          DEFAULT: "#2563EB",
           foreground: "hsl(var(--accent-foreground))",
         },
         popover: {
@@ -46,7 +46,7 @@ export default {
         },
         norm: '#10B981',
         alert: '#F59E0B',
-        critical: '#EF4444',
+        critical: '#f43f5e',
       },
       animation: {
         'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',

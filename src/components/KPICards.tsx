@@ -21,6 +21,7 @@ interface CardProps {
 
 const KPICard = ({ title, value, unit, icon, status, trend, isMock, lastUpdated }: CardProps) => {
   const { language } = useCityData();
+  const isEn = language === 'en';
   const isCritical = status === 'КРИТИЧНО';
   
   const statusColors = {
@@ -58,7 +59,7 @@ const KPICard = ({ title, value, unit, icon, status, trend, isMock, lastUpdated 
           status === 'ВНИМАНИЕ' ? 'bg-alert/10 text-alert' :
           'bg-norm/10 text-norm'
         )}>
-          {status}
+          {isEn ? (status === 'КРИТИЧНО' ? 'CRITICAL' : status === 'ВНИМАНИЕ' ? 'WARNING' : 'NORMAL') : status}
         </span>
       </div>
       
@@ -160,7 +161,7 @@ export const KPICards: React.FC<{ activeModule: ModuleType }> = ({ activeModule 
   const getEcologyCards = (): CardProps[] => {
     return [
       {
-        title: 'Индекс AQI',
+        title: language === 'ru' ? 'Индекс AQI' : 'AQI Index',
         value: ecology.aqi.toFixed(0),
         unit: '',
         icon: <Wind size={16} />,
@@ -180,7 +181,7 @@ export const KPICards: React.FC<{ activeModule: ModuleType }> = ({ activeModule 
         lastUpdated
       },
       {
-        title: 'NO₂',
+        title: language === 'ru' ? 'Выбросы NO₂' : 'NO₂ Emissions',
         value: ecology.no2.toFixed(1),
         unit: 'мкг/м³',
         icon: <Factory size={16} />,

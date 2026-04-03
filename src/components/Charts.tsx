@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, 
   Tooltip, ResponsiveContainer, AreaChart, Area, RadarChart, PolarGrid, 
-  PolarAngleAxis, PolarRadiusAxis, Radar, PieChart, Pie, Cell
+  PolarAngleAxis, PolarRadiusAxis, Radar, PieChart, Pie, Cell, Legend
 } from 'recharts';
 import { useCityData, ModuleType } from '../hooks/useCityData';
 import { motion } from 'framer-motion';
@@ -173,10 +173,11 @@ export const Charts: React.FC<{ activeModule: ModuleType }> = ({ activeModule })
           <div className="h-64">
              <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={safety.incidentsByType} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={5} dataKey="count">
-                    {safety.incidentsByType.map((_, index) => <Cell key={`pie-${index}`} fill={COLORS[index % COLORS.length]} />)}
+                  <Pie data={safety.incidentsByType} nameKey="type" dataKey="count" cx="50%" cy="50%" innerRadius={50} outerRadius={85} stroke="none" paddingAngle={2}>
+                    {safety.incidentsByType.map((_, index) => <Cell key={`pie-${index}`} fill={COLORS[index % COLORS.length]} stroke="hsl(var(--card))" strokeWidth={2} />)}
                   </Pie>
-                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }} />
+                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }} itemStyle={{ color: 'hsl(var(--foreground))' }} />
+                  <Legend layout="vertical" verticalAlign="middle" align="right" iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
                 </PieChart>
              </ResponsiveContainer>
           </div>

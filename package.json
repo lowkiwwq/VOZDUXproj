@@ -13,13 +13,16 @@
     "@google/generative-ai": "^0.2.1",
     "clsx": "^2.1.0",
     "framer-motion": "^11.0.3",
+    "leaflet": "^1.9.4",
     "lucide-react": "^0.344.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-leaflet": "^4.2.1",
     "recharts": "^2.12.0",
     "tailwind-merge": "^2.2.1"
   },
   "devDependencies": {
+    "@types/leaflet": "^1.9.21",
     "@types/react": "^18.2.56",
     "@types/react-dom": "^18.2.19",
     "@typescript-eslint/eslint-plugin": "^7.0.2",

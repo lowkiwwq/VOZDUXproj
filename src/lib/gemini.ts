@@ -101,3 +101,73 @@ Housing: electric load ${housing.electricityLoad.toFixed(1)}%, complaints ${hous
     throw new Error('Gemini API Error: ' + error.message);
   }
 };
+
+export interface AdvisorResponse {
+  situation: string;
+  criticality: 'High' | 'Medium' | 'Low' | 'Высокий' | 'Средний' | 'Низкий';
+  recommendations: string[];
+}
+
+export const generateAdvisorResponse = async (
+  geminiKey: string,
+  userQuery: string,
+  transport: TransportData,
+  ecology: EcologyData,
+  language: Language
+): Promise<AdvisorResponse> => {
+  const isEn = language === 'en';
+
+  const systemConstraint = isEn 
+    ? "IMPORTANT STRICT CONSTRAINT: If the user's question does not relate to city management, urban scenarios, public safety, ecology or transport, you must politely refuse to answer. Generate the JSON with a polite refusal in 'situation' and empty recommendations."
+    : "СТРОГОЕ ОГРАНИЧЕНИЕ: Если вопрос пользователя не касается управления городом, урбанистики, сценариев ЧС, экологии или транспорта, вежливо откажись отвечать. Верни в JSON вежливый отказ в 'situation' и пустые 'recommendations'.";
+
+  const prompt = [
+    `Ты — интеллектуальный советник мэра города.`,
+    `Отвечай на сценарии "Что, если?". Выдай ответ СТРОГО в формате JSON.`,
+    `Никаких других символов, маркдауна или текста вне JSON.`,
+    systemConstraint,
+    ``,
+    `Вопрос пользователя: "${userQuery}"`,
+    ``,
+    `Краткая сводка по городу:`,
+    `- Транспорт (Загруженность): ${transport.congestionIndex.toFixed(0)}%`,
+    `- Экология (AQI): ${ecology.aqi.toFixed(0)}`,
+    ``,
+    `Ждем JSON структуры:`,
+    `{`,
+    `  "situation": "${isEn ? 'What is happening (consequences of the scenario)' : 'Что происходит (последствия сценария)'}",`,
+    `  "criticality": "${isEn ? 'High / Medium / Low' : 'Высокий / Средний / Низкий'}",`,
+    `  "recommendations": ["${isEn ? 'Rec 1' : 'Рек 1'}", "${isEn ? 'Rec 2' : 'Рек 2'}"]`,
+    `}`
+  ].join('\n');
+
+  if (!geminiKey) {
+    return new Promise(resolve => setTimeout(() => {
+      resolve({
+        situation: isEn 
+          ? `Mock simulation triggered for: "${userQuery}". Assuming moderate traffic displacement.`
+          : `Сработало демо-моделирование для: "${userQuery}". Ожидается перераспределение трафика по соседним улицам.`,
+        criticality: isEn ? 'Medium' : 'Средний',
+        recommendations: isEn 
+          ? ['Add API Key for actual logic', 'Warn residents']
+          : ['Установите API ключ для настоящей аналитики', 'Предупредить жителей через городские каналы связи', 'Усилить патрули на ближайших развязках']
+      });
+    }, 2500));
+  }
+
+  const genAI = new GoogleGenerativeAI(geminiKey);
+  const model = genAI.getGenerativeModel({ 
+    model: "gemini-2.5-flash",
+    // @ts-ignore
+    generationConfig: { temperature: 0.2 }
+  });
+
+  try {
+    const result = await model.generateContent(prompt);
+    let text = result.response.text();
+    text = text.replace(/```(?:json)?\n?/g, '').replace(/```\n?/g, '').trim();
+    return JSON.parse(text) as AdvisorResponse;
+  } catch (error: any) {
+    throw new Error('Gemini API Error: ' + error.message);
+  }
+};

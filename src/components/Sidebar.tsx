@@ -1,5 +1,5 @@
 import React from 'react';
-import { Truck, Leaf, Shield, Building2 } from 'lucide-react';
+import { Truck, Leaf, Shield, Building2, FileText } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useCityData, ModuleType } from '../hooks/useCityData';
 
@@ -10,19 +10,21 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ activeModule, setActiveModule }) => {
   const { language } = useCityData();
+  const isEn = language === 'en';
 
   const navItems = [
-    { id: 'transport' as ModuleType, label: language === 'ru' ? 'Транспорт' : 'Transport', icon: <Truck size={20} /> },
-    { id: 'ecology' as ModuleType, label: language === 'ru' ? 'Экология' : 'Ecology', icon: <Leaf size={20} /> },
-    { id: 'safety' as ModuleType, label: language === 'ru' ? 'Безопасность' : 'Safety', icon: <Shield size={20} /> },
-    { id: 'housing' as ModuleType, label: language === 'ru' ? 'ЖКХ' : 'Services', icon: <Building2 size={20} /> },
+    { id: 'transport' as ModuleType, label: isEn ? 'Transport' : 'Транспорт', icon: <Truck size={20} /> },
+    { id: 'ecology' as ModuleType, label: isEn ? 'Ecology' : 'Экология', icon: <Leaf size={20} /> },
+    { id: 'safety' as ModuleType, label: isEn ? 'Safety' : 'Безопасность', icon: <Shield size={20} /> },
+    { id: 'housing' as ModuleType, label: isEn ? 'Housing & Utilities' : 'ЖКХ', icon: <Building2 size={20} /> },
+    { id: 'reports' as ModuleType, label: isEn ? 'Reports' : 'Отчеты', icon: <FileText size={20} /> },
   ];
 
   return (
     <aside className="w-64 border-r border-border bg-card hidden md:block">
       <div className="p-4">
         <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4 px-3">
-          {language === 'ru' ? 'Модули' : 'Modules'}
+          {isEn ? 'Modules' : 'Модули'}
         </div>
         <nav className="space-y-2">
           {navItems.map((item) => {
